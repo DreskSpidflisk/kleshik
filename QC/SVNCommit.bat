@@ -1,0 +1,1 @@
+.\svn\bin\svn.exe ci D:\Games\Quake\kleshik\ --username lizdresk --password wahteetod23 --message %1

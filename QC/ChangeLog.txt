@@ -1,0 +1,576 @@
+Kleshik Modification v0.8.3
+Supports Quake and the Two Mission Packs (hipnotic, rogue)
+by Dresk (dresk@comcast.net)
+
+		CHANGELOG
+--------------------------------------
+	* 3/14/08 - 1:57PM EST
+		- Modified Elite Monster Effects
+			- Removed EF_RED, tweaked colormod and added faded spinning pentagram
+		- Tweaked generic world light pulsation effect to be slower
+		- Removed player death light pulsation effect
+		- Tweaked base Exploding Item Percent Chance from 45% to 35%
+		- Tweaked Base Monster Movement Multiplier from 1.8 to 1.68
+		- Reduced Blood Shower Amount on Death from 1000 to 150
+	* 08/07/07 - 8:53PM EST
+		- Added Quake2 Player Model Crouching Interactivity
+			- kleshik_PlayerModel_Crouch_InteractivityLevel
+				- If set to 0, crouching disabled
+				- If set to 1, crouching allowed but purely aesthetic
+				- If set to 2, crouching allowed and affects player size and view offsets
+			- kleshik_PlayerModel_Crouch_AttackRefirePercentReduction
+				- Specifies the percent to reduce attack refiring if crouched
+				- Only active if crouching interactivity is level 2
+				- Disabled if 0
+	* 08/05/07 - 7:42PM EST
+		- Added kleshik_coop_ResetHealthAndArmorEveryLevel
+			- If 1, will always reset health to 100 at level load (instead of only providing up to 50 if damaged)
+			- If 2, will additionally purge armor
+	* 07/31/07 - 8:49AM EST
+		- Added kleshik_gamemode_KleshikSoundPack_Enabled
+			- Enables the Kleshik Sound Pack
+			- Sound Pack includes many, many new ambient sounds, player movement sounds, feedback sounds and more
+			- Highly recommended, although client download required
+	* 07/30/07 - 4:36PM EST
+		- Added kleshik_item_Powerup_Invisibility_UseAlphaLevel
+			- Specifies the alpha level to assign to a player that has invisibility
+			- Skips using eyes model (disabled if 0)
+		- Added kleshik_FlashLight_UseCubemapLight
+			- Utilizes a Cubemap texture for a realistic "directional" flash light, akin to Doom3
+			- Requires download of Kleshik Cubemap .pk3
+	* 07/27/07 - 2:16AM EST
+		- Added "Night and Day" Entity (kleshik_world_NightAndDay_TimeUpdate, kleshik_world_NightAndDay_MinLightLevel, kleshik_world_NightAndDay_MaxLightLevel)
+			- If the CVar is greater than 0, the global light level is decrement down to darkness for every time specified
+			- Once the light level is entirely dark, it traverses up to the specified max light level
+			- NOTE: Overrides usage of kleshik_world_NormalLightmapAnimation
+		- Added Spawn Fading Copy at Teleport (kleshik_misc_SpawnFadingCopyAtTeleport)
+			- If enabled, spawns a fading copy of the entity at the location that it teleported
+			- Spawns for players if 1, spawns for everything if 2
+		- Added player corpse land sound and blood
+	* 07/26/07 - 1:42AM EST
+		- Added Preprocessor (compile time) Kleshik Sound Pack Support
+			- Provides new sounds for many features, along with lots of ambient sounds
+			- Sound Pack is not necessary, and may be opted out of compile (might change to CVar-system)
+		- Added "kleshik_world_WaterCDTrack"
+			- Specifies CD Track to play when player is underwater
+			- CD Track 1 in the Kleshik Sound Pack provides an underwater sound
+			- Disabled if 0
+		- Added Underwater Bubble Trails to Players
+	* 07/16/07 - 1:00AM EST
+		- Added Player Model Support ("kleshik_PlayerModel_AllowPlayerModelChanges", "kleshik_PlayerModel_AllowPlayerModelType_Quake2", "kleshik_PlayerModel_ReuseDelayTime")
+			- Full animation and sound replacements supported
+			- Quake1 Player Models (are there any?) supported
+			- Quake2 Player Models supported
+			- Commands sent as aliases (kleshik_ResetPlayerModel, kleshik_SetPlayerModel_Quake2, etc.)
+		- Added Non Players Inherit Gravity in Hipnotic Gamemode (kleshik_gamemode_Hipnotic_NonPlayersInheritGravity)
+			- Allows non-player entities to utilize the gravity changes contained in Hipnotic maps
+		- Renamed "Dark Mode Fog Hack" to "Global Fog"
+			- Added additional CVar for color configuration "kleshik_world_GlobalFog_Color"
+	* 07/10/07 - 1:31AM EST
+		- Fixed random bugs with Hipnotic Spawn Monsters
+		- Optimized Hipnotic Spawn monsters to not draw until spawned with EF_NODRAW
+			- Assigned DAMAGE_NO flag to spawn points and pre-spawned monsters to avoid damage with the Rogue Plasma Gun (and other guns)
+		- Modified Quad Cheat to actually spawn Quad Damage to pickup (provides additive Quad Damage times if enabled)
+		- Modified hurt_touch triggers that have negative damage (ie. heal) to instead play a healing sound and not cause damage effects
+		- Modified Effects of Bloodwash HUD Stinger
+		- Merged all blood / gore spawning calls into main Damage function
+		- Added "kleshik_weapon_AllShotguns_PerBulletDamage"
+			- Modifies logic of shotgun weapons (both player and monster) to perform damage for every individual bullet, instead of aggregate damage
+		- Added "kleshik_weapon_AllShotguns_DrawTracerFire"
+			- Utilizes te_particlerain calls to produce excellent looking tracer fire effects for shotguns
+			- WARNING : Utilizes LOTS of bandwidth and can be a detriment to online play
+		- Added "Strong Soldier" 50% Chance to normal Soldier monster
+	* 07/05/07 - 3:00AM EST
+		- Added Throwable Flares (independent of weapons)
+			- Flares provide significant light radius, but alert enemies that see it and can harm others if contact occurs at high velocity
+			- CVars allow for Impulse key (0 to disable), refire time and life time
+			- CVars involved : "kleshik_throwableflares_Impulse", "kleshik_throwableflares_FlareLifeTime", "kleshik_throwableflares_FlareRefireTime"
+		- Tweaked speed and homing accuracy of Wrath missiles to allow for possibility to avoid
+		- Added "kleshik_monster_Wrath_MissileExplodeTime"
+			- Allows for timer to explode wrath missiles
+		- Tweaked Quake Monster AI to lose track of players if not having seen them after 5 seconds
+			- Invisibility / NoTarget experience this behavior at only 2 seconds (hide and they will forget you)
+		- Optimized FindTarget usage of Quake monsters
+		- Modified Items to return to their true origin after an Exploding Item Box is exploded, instead of reforming at the exploding item box origin
+			- Items are still physically processing even if an explosion box is present
+		- Modularized the Owner Touchable Projectile Code
+		- Optimized PlayerPreThink Function
+		- Renamed Exploding Items to Exploding Item Boxes
+	* 07/01/07 - 8:37PM EST
+		- Completely Redesigned the Weapon and Player Animation System
+			- Weapons now animate independently of player animation and are now an entity, which allows for additional effects
+			- Player animation now contains no game logic, only frames to render the player
+			- Both animation systems support user-defined speeds
+		- Optimized Bleeding Checks
+		- Optimized Flash Light Blinding Code
+		- Added "kleshik_world_DisableAllDynamicLightPulsations"
+			- Simple CVar to disable all dynamic light pulsations (for those who find it nauseating)
+		- Added "kleshik_EliteMonster_InitialContactHUDStinger"
+			- Allows control over the Elite Monster HUD Stinger
+		- Renamed all "kleshik_creature" CVars to "kleshik_monster"
+			- Internally renamed all variables and functions accordingly
+		- Modified Proximity Bombs to bounce off Elite Monsters (as they should)
+	* 06/30/07 - 5:45PM EST
+		- Modified Cell Consumption of Mjolnir lightning from 15 to 50
+			- Mjolrnir is capable of damaging four enemies at 320 damage each, with a max damage potential of 1280 (and that's every easy to accomplish)
+			- Lightning Gun, using 15 cells, can damage 450 to a single enemy
+	* 06/29/07 - 3:33PM EST
+		- Renamed Cooperative Teleport to Personal Teleporter
+			- CVars, Aliases / etc renamed
+			- Teleporter now available in non-coop
+		- Renamed Bonus Monsters to Elite Monsters
+			- CVars, Documentation / etc renamed
+		- Modularized HUD Stinger Code
+			- Supports Pentagram, Blood Wash
+		- Modularized World Light Pulsation Code
+		- Renamed Cooperative Player Death to Player Death
+			- CVars, Documentation / etc renamed
+			- Technically applies even when not cooperative (despite fact respawn is not available, it did not belong as a pure "coop" feature)
+	* 06/28/07 - 4:21AM EST
+		- Modified Mjolnir Lightning to NOT strike other players in coop
+		- Modified Rogue Plasma Discharge to NOT strike other players in coop
+		- Modified Rogue Plasma Alternate Fire to Displace Projectile Immediately (remained still for 0.1 seconds originally)
+		- Modified Scale of Empathy Shields to 0.7 (pickup too large natively)
+		- Removed Shadow from Rogue Plasma Projectile
+		- Modified AI Recognition of NOTARGET and Invisible players to never alarm other enemies if attacked by the invisible creature
+		- Added Sound to Mjolnir when striking a live entity (previously it made no sound)
+		- Added Sound to Intermission Steps
+		- Removed EF_DIMLIGHT effect from having Empathy Shields
+		- Envirosuit now protects against Flash Light Blinding
+		- Added "kleshik_weapon_ProximityGun_BombLifetime"
+			- Specifies lifetime of Hipnotic Proximity Bombs
+			- Use 0 for infinite lifetime
+		- Added "kleshik_weapon_ProximityGun_MaxBombs"
+			- Specifies maximum number of Hipnotic Proximity Bombs allowed on a map
+			- Use 0 for infinite amount
+		- Added "kleshik_weapon_ProximityGun_AllowAltFireDetonation"
+			- Allows all proximity bombs to be detonated at once with alt-fire
+		- Modified Monsters that are randomly bonus monsters at start to become bonus monsters at first contact with the player
+			- Additional effects and sounds follow
+	* 06/25/07 - 7:07PM EST
+		- Added "kleshik_gamemode_Hipnotic_LegacyItems"
+			- Transparently adds Hipnotic Weapon Pickups to normal Quake weapons, allowing Hipnotic guns to be found when Hipnotic is enabled but the map does not contain them
+		- Fixed Gyro Physics Leak
+		- Fixed instances of spark bleeding entities still bleeding blood
+		- Adjusted locations and scales of floating weapon, keys
+		- Significant cleanup of codebase
+		- Fixed bug where clone monsters still spawned over monsters that were special (ie. targets)
+		- Massively Cleaned up the Hipnotic Spawn System
+			- Monster total now calculated at level load
+			- Wasted Monster Entities no longer spawned for Random Spawner
+			- Advanced Statistics now properly calculates monsters
+		- Added kleshik_weapon_NailsInheritGrenadeModelFlagInWater
+			- Allows Nails to spew bubbles when underwater
+		- Added kleshik_weapon_ProximityGun_TriggerOnOtherBombs
+			- Allows the user to configure if Proximity Bombs Trigger on Other Bombs
+			- Default value is 0 to allow for massive stacking of bombs
+	* 06/19/07 - 7:00PM EST
+		- Removed Modelflag Effects from all floating items
+		- Added Bleed at Health Percentile (kleshik_misc_BleedAtHealthPercentile)
+			- Assigns gib model flag to players / monsters when at or below the specified health percentile
+		- Modified colormod of Explosive Item Boxes
+		- Removed water splash sound from many entities (gibs, detailed nails, backpacks, etc.)
+		- Modified Weapon Firing Sound Channel to utilize CHAN_AUTO, instead of CHAN_WEAPON
+		- Removed "kleshik_creature_DropBackpackOnGib"
+			- Always drop backpack now
+		- Utilize Worldtype of 0 for maps with Worldtype < 0 || > 2
+		- Added Cooperative Teleports to Door Keys (Silver Door, Gold Door)
+			- Specified with kleshik_coop_Teleport_AllowDoorKeyTeleports
+		- Modified Cooperative Teleport Menu to use "Doors and Keys" Submenu
+			- Submenu provides teleports to doors and keys in map
+			- Prevents too many targets from appearing on the main menu
+		- Increased Player Bodyque Size to 50 (from 20)
+		- Modified "kleshik_weapon_ThunderboltBeamDischarges" logic to have the beam only discharge if hitting water or slime (not lava or teleporters)
+		- Player Corpses are now Gibbable
+		- Gibbed Monster Heads no longer "kick" other gibbed heads
+	* 01/01/07 - 4:26PM EST
+		- Fixed bug in my code where additional spawned monsters were stuck in one another
+	* 12/14/06 - 9:08AM EST
+		- Added Alias List for Client Impulses (improves ease of use)
+			- Current Alias List : kleshik_AdvancedStatistics, kleshik_ClientScores, kleshik_CooperativeTeleportMenu, kleshik_QuickHelp, kleshik_ToggleFlashlight
+	* 12/11/06 - 4:14PM EST
+		- Added Additional Space to Client / Secrets in Client Stat Scores Display
+		- Reorganized code, creating additional files and moving field and global definitions to files, rather than keeping everything in Dresk_Defs.qc
+			- Dresk_Defs.qc was becoming quite overloaded and difficult to find what you needed!
+			- This approach also provides additional modularity
+	* 12/07/06 - 10:08PM EST
+		- Fixed bug with Chat Bubble not updating when player dead
+	* 11/30/06 - 6:03PM EST
+		- Increased Axe Damage even more (from 40 to 45)
+	* 11/28/06 - 2:54PM EST
+		- Fixed Zombie Corpses being unremovable with RemoveAllMonsterCorpses command
+		- Added Client Chat Bubbles (kleshik_player_EnableChatBubbles)
+	* 11/27/06 - 9:00PM EST
+		- Added Client Scoring System (kleshik_misc_ClientScoresImpulse, kleshik_misc_ClientScoresImpulseAtIntermission)
+			- Displays Individual Client Scores given specified impulse and during intermission
+			- Scores include kills, deaths, ammo used / acquired, etc.
+	* 11/25/06 - 3:33PM EST
+		- Massively Cleaned up trap_spikeshooter code
+			- Should now correctly support all mission packs, given relevant CVars are enabled
+		- Modified Give All Shared Cheat to only Give All if Shared Ammo is not Enabled
+		- Fixed bugs with Rogue Monsters not having attributes applied
+		- Shifted to the latest dpextensions.qc code (since it has my patches!  Hurray!)
+		- Tweaked Rogue Multi Rockets / Grenades to require 4 rockets (instead of 3)
+		- Removed Dynamic Light Creation from Rogue Multi Grenade Explosions (helps Darkplaces performance)
+		- Added Additional Feedback to Starting the Thunderbolt Gun (Shambler too)
+		- Removed Shadow from Hellknight Projectiles
+		- Added Laser Trails to Enforcer / Trapshooter Lasers
+		- Modified Cooperative Teleport Target Print Code to Utilize strlennocol for centering
+	* 11/19/06 - 2:22PM EST
+		- Added Powerup Times Added (kleshik_item_PowerupTimesAdded)
+			- Example : Currently have Quad Damage for 25 seconds, picking up another results in 25 + 30 seconds
+		- Fixed spacing bugs with Rogue Death Messages
+		- Fixed bug with Multi Rockets not bouncing off of Elite Monsters
+		- Added Gyro Physics Properties to Multi Rockets
+		- Assigned Bleeds Sparks to Invisible Swords
+		- Assigned Bleeds Sparks to the Statue Versions of the Knights / Hellknights
+		- Removed Extra Thrown Gibs on Death if Bleeds Sparks
+		- Fixed (hopefully) Spike Mine Killing Bug
+	* 11/16/06 - 12:07AM EST
+		- Added Random Drops Armor / Powerup Drops to Creatures (kleshik_creature_DropAdditionalItems)
+			- See Table in Features for Information
+			- Gyro Physics Properties Assigned to Drops Currently; May Disable in Future (odd looking at times)
+		- Added Nail Ammo Drops for Knight and Hell Knight (8 and 12 nails, respectively)
+	* 11/15/06 - 10:58AM EST
+		- Modified Initial Help Message to Display Only Once (suppressed through changelevel)
+		- Fixed frags retaining score through Maps bug
+		- Added Spark Firing Feedback to Regular Shotgun
+		- Added Additional Button Feedback
+		- Applied Gyro Physics Properties to Backpacks
+	* 11/14/06 - 9:10AM EST
+		- Reduced Explosives Owner Velocity Ratio to 0.15 (from 0.75)
+		- Added Player Drops Powerups on Death (kleshik_player_DropPowerupsOnDeath)
+		- Modified Powerup Pickup Messages to Include Time
+		- Modified Envirosuit Time to 90 seconds
+	* 11/13/06 - 8:30AM EST
+		- Fixed bug with explosions inheriting Gyro Physics (due to projectile having Gyro)
+		- Modified Frags Based on Monsters Killed to Support Retaining Score through Maps (kleshik_coop_FragsBasedOnMonstersKilled)
+			- Assign CVar to 2 (default) to support
+	* 10/01/06 - 1:51PM EST
+		- Added Add Ground Velocity to Jump (kleshik_player_AddGroundVelocityToJump)
+			- NOTE : Breaks player movement prediction (cl_movement) when jumping (only for a frame or two)!  This is due to cl_movement_jumpvelocity behind static and not supporting the variance of ground velocity
+			- Assigned at map load for performance reasons
+		- Added Weapon Explosives Owner Velocity Ratio, ala Tribes (kleshik_weapon_ExplosivesOwnerVelocityRatio)
+			- Adds ratio of owner velocity to grenades / rockets when fired
+		- Added Gyro Physics Detail Entity CVar (kleshik_gamemode_GyroPhysics_DetailEntities)
+			- Specifies if "detail entities" such as gibbed heads have gyro physics
+			- Disabled by default, used to reduce bandwidth but provide support for gyro physics on weapons and important entities
+		- Added Infinite Ammo (kleshik_ammo_Infinite)
+			- Useful for cooperative sessions where pure chaos is desired
+			- Assigned at map load for performance reasons
+		- Added Gyro Physics Properties to Rockets
+	* 9/22/06 - 5:00PM EST
+		- Fixed bug with Gyro Physics and players not receiving radius damage after gibbed once
+		- Assigned Bleeds Sparks to Proximity Grenades in Hipnotic
+		- Added Correct Directional Damage Support for Shotgun, Super Shotgun, Lightning Gun
+			- Firing vertically into a target on the same plane will induce vertical movement now
+				- Previously directional calculation was based on position of player, not direction of damaging source
+	* 9/19/06 - 9:55AM EST
+		- Cleaned up Friendly Fire Mirror Damage Code (now just swaps attacker and target; works well!)
+		- Fixed bug with armor item being removed from client if damage caused is greater than armor available for save and invulnerability / godmode is active
+		- Fixed reported potential issue with Player Bubble Spawner Entities not being removed
+		- Fized issue with door unlock sound being overwritten by door opening sound
+	* 9/17/06 - 11:00PM EST
+		- Added Cooperative Mirror Friendly Damage (kleshik_coop_MirrorFriendlyDamage)
+			- Useful for those assholes that are trigger-happy
+		- Added More Effects to Death of Bonus Monster
+		- Modified Player Respawn to Purge Punchangle and Jump Flag
+			- Prevents disorientated view and falling damage at respawn
+	* 9/17/06 - 1:20PM EST
+		- Fixed Bug with Zombies not gibbing immediately in pain volumes (lava, slime, etc)
+		- Added Gyro Physics to Gibbed Heads and Dead Fish (if Gyro Physics enabled)
+		- Added Base Creature Becomes Bonus Monster Percent Chance (kleshik_creature_BonusMonsterPercentChance)
+			- Applies to ALL monsters when spawned
+	* 9/16/06 - 10:00PM EST
+		- Completely Recoded Flash Light Blinding System
+			- No longer uses v_brightness stuffcmds to clients!
+			- Spawns a viewmodel entity to the client as the bubble sprite, resized and alphaed accordingly
+			- End result is acceptable blinding effect, especially with r_bloom enabled
+			- No matter what, much better than v_brightness commands!
+			- CVars renamed accordingly
+		- Fixed Bug with Knights not having gib health
+		- Decreased density of water fog (from 0.3 to 0.25)
+		- Modified Impulse 9 cheat to Impulse 254
+			- Impulse 253 gives all ammo / weapons to shared ammo / shared weapons
+		- Implemented Gyro Physics System (kleshik_gamemode_GyroPhysics_Enabled)
+			- Pretty much nothing used yet, aside from Macro Grenades
+			- Suggestions for nifty physical objects welcome!
+		- Added Light Pulsation, Explosion and Sound to Bonus Monster Death (kleshik_coop_PlayerDeath_BonusMonsterDeathLightPulsation)
+	* 9/15/06 - 2:00PM EST
+		- Added Monsters See Through Water Support (kleshik_creature_SeeThroughWater)
+			- Assigned at map load for performance
+		- Modified Weapon Punchangle feedback to be additive instead of replacing
+			- Reduced Punchangle on Constant-Fire Weapons
+				- Prevents constant additional punchangle
+		- Increased Default Bodyque Size (from 10 to 20)
+		- Modified Cooperative Teleport Allow Key Teleport CVar to be checked at Print Teleport Targets
+			- Allows for CVar to be modified mid-game and still reflect keys acquired
+			- Additionally defers key target prints if CVar disabled
+		- Increased Falling Damage to be ratio of falling speed
+			- Damage = (Falling Speed / 425) * 5
+			- Max damage capped to 30
+	* 9/14/06 - 12:00PM EST
+		- Tweaked Monster Lava / Slime hurt code to immediately gib zombies
+		- Fixed bug with Shub-Niggarath being moved with damage
+		- Modified Gibbable Corpses Logic to assign corpse health to Gib Health + 1
+			- Results in immediate gib if corpse is hit by explosive
+	* 9/11/06 - 8:00PM EST
+		- Tweaked Monster Telefrag logic to allow telefrags during intermission (E1M7 end)
+	* 9/11/06 - 10:00AM EST
+		- Modified Cooperative Teleport System Printing Display to ALWAYS INCLUDE Players (even if dead) and Keys (even if not found yet)
+			- Previously, dead players and not-found keys would not display, shifting the target numbers around when conditions were reversed
+			- "Unavailable" targets are rendered with faded numbers and textual indicators
+		- Modified Cooperative Teleport to Player traceline to perform a tracebox
+			- Trace now includes size of player; should prevent invalid locations
+			- Still not the perfect solution
+		- Cooperative Teleport menu is now disabled and purged on death
+		- Fixed bug with zombies getting incorrect monster bonuses if killed player
+	* 9/9/06 - 3:05AM EST
+		- Added Item Disable Pickup Messages (kleshik_item_DisablePickupMessage_*)
+			- Takes effect at level load for performance reasons
+			- Disabled by default
+			- Suppresses item pickup message (ie. "You get 20 shells")
+			- Supports individual disables for Ammo, Backpack, Health, Powerup, Weapon
+	* 9/8/06 - 2:50PM EST
+		- Added Cooperative Teleport Reuse Delay Time (kleshik_coop_Teleport_ReuseDelayTime)
+			- Prevents massive teleporting from assinine players (Influence)
+		- Tweaked the Cooperative Teleport to Player Location
+			- Performs a trace opposing the target's view angles at a small distance
+			- Should prevent shooting teleported teammates and platform crushing
+		- Added Cooperative Player Death - Blood Explosion Percent Chance (kleshik_coop_PlayerDeath_BloodExplosionPercentChance)
+			- Creates a massive blood explosion on all clients if met
+		- Increased default flash light distance (from 225 to 275)
+	* 9/6/06 - 11:00AM EST
+		- Updated various descriptions of CVars in the Documentation that were out of date
+		- Added Broadcast Player Cheats CVar (kleshik_player_BroadcastPlayerCheats)
+			- Broadcasts when a player utilizes a cheat (if cheats are enabled)
+		- Decreased Default Shalrath Missile Explode Time (from 10 to 7)
+		- Updated Documentation Section 1 Information
+	* 9/3/06 - 1:05AM EST
+		- Tweaked Cooperative Teleport to teleport to a player's origin + '0 0 1' 
+			- Should prevent being crushed when on a platform
+		- Fixed bug where disconnected client's flash light / floating weapon / floating keys would still exist
+		- Changed CVar Name : from kleshik_coop_AllowRespawnAtDeathLocation to kleshik_coop_RespawnAtDeathLocation_Allow
+	* 9/2/06 - 11:30AM EST
+		- Added Grenades Bounce Off Owner (kleshik_weapon_GrenadesBounceOffOwner)
+			- Grenades will no longer pass through the owner
+		- Fixed Nailgun spelling typo
+		- Added Exploding Item Include Item Respawns (kleshik_explodingitem_IncludeItemRespawns)
+			- Allows respawned items to become exploding items
+			- Defaults to off
+		- Added support for Darkplaces Quad Temporary Entity Feedback
+		- Added small detailed shell ejection for Rocket Launcher (kleshik_weapon_RocketLauncherEjectsShells)
+	* 9/2/06 - 2:00AM EST
+		- Added dynamic translation of legacy item_weapon entites to appropriate item_ammo entities
+		- Fixed armortype precision loss in spawn parameter (caused red armor to be picked up again if spawned inlevel with it)
+		- Fixed bug / gameplay logic where armor was used to reduce drowning / falling damage
+		- Fixed bug where Chthon (monster_boss, AKA E1M7 boss) would no longer target anyone if all players were dead at any moment
+		- Significantly strengthened Chthon's attack powers (faster lavaballs, more frequent throwing)
+		- Added Fun Flash Light Stupid Mode During Intermission! (thanks Entar from vr2mod for the idea)
+	* 9/1/06 - 8:00PM EST
+		- Fixed floating weapon / keys bug where they displayed over a dead character
+		- Modified Instant Brush Crush Kill logic to not reverse the brush if the kill is instant
+	* 9/1/06 - 1:00PM EST
+		- Cleaned up the codebase significantly
+			- Reduced function calls (checked variables more often)
+		- Removed the alternate codepaths for spikeshooter traps
+			- All gametypes utilize a single path
+		- Added counters for Hipnotic / Rogue features
+			- Provides information if the current map requires either mission pack
+		- Added Create Spawn Point Models (kleshik_world_CreateSpawnPointModels)
+			- Spawns pentagrams on the floor where spawn points exist
+			- Not detailed currently due to limitations in Darkplaces' model spin code (needed to call makestatic on entity)
+	* 8/29/06 - 6:00PM EST
+		- Added Teleports to Keys in Cooperative Teleport System (kleshik_coop_Teleport_AllowKeyTeleports)
+			- Teleports ONLY allowed if key is acquired by player
+	* 8/29/06 - 4:00PM EST
+		- Added additional punchangle when firing weapons with the Flash Light enabled
+		- Added "Insane Lavaballs" (kleshik_world_InsaneLavaballs)
+			- Spawns lavaballs at an increased rate
+			- Lavaballs have increased velocity and do radius damage
+		- Tweaked effects of standard teleport flash
+		- Added Shalrath Missile Explode Time (kleshik_monster_Shalrath_MissileExplodeTime)
+			- Forces the Shalrath / Vore homing missile to explode after specified time
+		- Modified armor pickup message to include damage reduction
+	* 8/28/06 - 11:30AM EST
+		- Rudimentary (~80%) Rogue Mission Pack Support
+			- All monsters supported
+			- All environmental traps supported (buzzsaw, pendulum, etc)
+			- New ammunition types ignored (lava nails, multirockets, plasma)
+			- Multigrenades, Multirockets, Plasma supported
+				- Use alternate fire (button3) on equivalent weapon
+				- Standard ammo utilized
+			- All new powerups substituted
+			- Ending Cutscene Supported
+			- All additional multiplayer gametypes suppressed (not available)
+				- Do NOT plan on them ever being implemented!  Kleshik is a cooperative modification!
+			- Ultimately, Rogue Singleplayer / Cooperative may be played just fine (the goal)
+		- Added Brush Crushes Instant Kill (kleshik_world_BrushCrushesInstantKill)
+			- If 1 or greater, monsters will be killed immediately when crushed by anything in the environment
+			- If 2 or greater, monsters AND players will be killed immediately when crushed by anything in the environment
+	* 8/27/06 - 1:54AM EST
+		- Fixed a bug with Hipnotic Rotating Brushes crashing
+	* 8/26/06 - 1:00PM EST
+		- Added Dynamic BodyQue Size Support (assigned at level load)
+			- Allows more than 4 player corpses to spawn
+		- Tweaked Flash Light to afflict others only within a 45 degree cone (facing the light)
+		- Flash Light automatically actives on respawn if killed with it enabled
+		- Added white color escapes to all netname prints (to prevent client colors from flooding into text)
+		- Substituted Sparks for Blood on Damageable Brushes
+		- Improved Dynamic Creature Spawn Placement Capabilities
+	* 8/23/06 - 5:30PM EST
+		- Added True Player Respawn Times (kleshik_player_RespawnTime)
+			- No more varied respawn times based on animation!
+			- No more instant respawning from gibbing!
+		- Added Cheat Reporting Broadcast System
+	* 8/23/06 - 1:00PM EST
+		- Added new Player Death Function - Bonus Monster (kleshik_coop_PlayerDeath_MonsterGainsBonusPercentChance)
+			- Monster that killed player gains 3X full health (health restored as well)
+			- Monster damage is 1.4x
+			- Monster glows red
+			- Monster receives 1/2 radius damage and rockets / grenades bounce off of them
+		- Fixed the bug with non-buttons being counted as buttons in Advanced Statistics
+		- Fixed various Gremlin bugs
+		- Added CVar for Flash Light Hostility
+		- Modified Flash Light Blinding Logic
+			- Player must now be actively hit by a Flash Light for 0.5 seconds before becoming blinded
+		- Modified Kill Command to Utilize Normal Kill Routine
+	* 8/22/06 - 10:00PM EST
+		- Organized Cooperative Player Death System (kleshik_coop_PlayerDeath_*)
+			- Death causes Light Pulsation
+			- HUD Stinger
+		- Fixed many various bugs and added features to Hipnotic Mission Pack support
+			- Added additional self-kill death messages for new weapons
+			- Added additional death message for Centroid (one for nail death, one for stinger death)
+			- Added Random Alpha Mod to Spikemine Traps
+		- Tweaked Shared Ammo to be Enabled by Default
+		- Reduced Enforcer Enhanced Total Health (125, from 160)
+		- Modified Creature Global Alpha Level Logic when dealing with Alpha-faded Creatures
+			- Lowest alpha between the two is now utilized
+		- Reduced percent chance of Grunt becoming Enforcer (35%, from 50%)
+	* 8/22/06 - 9:00AM EST
+		- 98% Hipnotic Mission Pack support!  Mode specified with CVar (kleshik_gamemode_Hipnotic_Enabled)
+			- All monsters supported
+			- All weapons supported
+			- Rotating Brushes, Hipnotic Particle System, Earthquake, Gravity Fields, Rubble, etc. supported
+			- Footsteps supported with new CVar (kleshik_gamemode_Hipnotic_Footsteps)
+			- Wetsuit replaced with Envirosuit (-1%)
+			- Horn of Conjuring replaced with Red Armor (-1%)
+			- Empathy Shields supported
+	* 8/21/06 - 9:00AM EST
+		- Fixed Swimming Monster Total Monster Count Bug
+		- Added Fish Death Function Including Gib (Hipnotic system)
+	* 8/20/06 - 9:00PM EST
+		- Added Cooperative Player Death Causes Light Pulsation (kleshik_coop_PlayerDeathCausesLightPulsation)
+			- When killed, the lights in the level will pulsate briefly
+			- 25% Chance of Boss Shouting Sound
+			- One of many future implementations to affect players when others die
+	* 8/19/06 - 8:00PM EST
+		- Added CVar for Normal Lightmap Animation (kleshik_world_NormalLightmapAnimation)
+			- Controls generic ambient light animation
+			- Thanks Entar for idea from vr2mod!
+	* 8/19/06 - 2:00PM EST
+		- Added Corpse Twitching
+			- Corpses twitch at random intervals
+			- Number of Twitches set at level load for performance reasons
+			- Great fun!
+		- Added Shells to Enforcer Backpack Drop (balance potential replacement)
+		- Leading Projectiles supports Ogre / Zombie Vertical Targetting
+		- Added CreatureAnimationEarthQuake which induces punch angle and vertical lift in nearby entities
+			- Shambler Death utilized thus far
+	* 8/18/06 - 9:50PM EST
+		- Restored Damageable and Kickable Gibbed Player Heads
+		- Fixed frag decrement bug in suicide when monster kills represent frags
+		- Item Pickups now update Advanced Statistics even when not needed by player at pickup
+		- Added More Advanced Statistics
+		- Tweaked Super Shotgun to Fire More Bullets (18, from 14)
+		- Added Random Monster Animation Blood / Sound Feedback (mostly during death frames)
+		- Tweaked Logic of Explosives Always Gib
+			- If 1, explosives will always gib
+			- If 2, ONLY explosives will gib
+		- notarget and Invisibility now defer alerts to other monsters
+		- Added Support for Advanced Statistics Display at Intermission
+		- Added Cooperative Spawn target to Cooperative Teleport System
+	* 8/18/06 - 12:00PM EST
+		- Increased Nailgun Spike Velocity (x 1.3)
+		- Added Creature Water Volume Check in ai_stand
+		- Added CVar for Exploding Item Damage (influences radius as well; default is 90, from 160)
+		- Added Support for "nomonsters" CVar
+		- Added avelocity to launch_spike projectiles
+	* 8/15/06 - 11:00AM EST
+		- Modified Respawn at Death Location to respawn with view angles from death state
+		- Fixed all dead bodies become damageable gibbed head bug
+		- Added Respawn Using Last Equipped Weapon
+		- Updated Random Creature Aesthetics
+		- Doubled Axe Damage (from 20 to 40)
+	* 8/13/06 - 11:00PM EST
+		- Capped Shared Ammo Pool to 999 each (for display purposes)
+		- Fixed Lightning Beam Discharge Death Message Bug
+		- Fixed Shared Ammo Pool Lightning Discharge Ammo Bug
+		- Increased Exploding Item Chance to 45% (from 35%)
+	* 8/13/06 - 3:00PM EST
+		- Added World Water Fog Hacks
+			- When entering water, fog commands are sent to the player (different for water, slime, lava)
+		- Modified Shared Ammo Pool to have no cap to the amount of ammo that may be collected
+		- Shifted Cooperative functions from Dresk_Definitions.qc to Dresk_CoopMain.qc
+	* 8/13/06 - 4:00AM EST
+		- Improved Additional Creature Spawn Efficiency
+	* 8/12/06 - 10:30PM EST
+		- Tweaked Thunderbolt to Discharge if beam hits water
+		- Added Cooperative Frags Based on Monsters Killed
+		- Added Zombie Percent Substitution
+		- "Hack" fix for Player Attack on Respawn (if attack used)
+		- Fixed Monsters Telefragging other Monsters
+	* 8/12/06 - 2:00AM EST
+		- Added Cooperative Shared Ammo Pool
+			- That's right!  All players can share the same ammunition
+			- CVar takes effect on map change ONLY
+		- Added Server-Side Disable Weapon AutoSwitch
+	* 8/11/06 - 5:00PM EST
+		- Added Cooperative Shared Weapons Pool
+			- All weapons picked up are shared by clients, including at respawn and level change
+	* 8/11/06 - 1:50AM EST
+		- Added Hackish DarkMode (uses Darkplaces fog to simulate lack of light)
+			- Sends client fog settings every respawn
+	* 8/11/06 - 1:00AM EST
+		- Reduced FlashLight Bright Hack Time from 7 to 4.5 seconds
+		- Removed Pain Sound from Kickable Gib Collision
+		- Tweaked Detailed Nail Touch (now LOW_PRECISION, NO_SHADOW, 2 second remove time)
+		- Reduced Maximum Gibs on Death from 10 to 6
+	* 8/11/06 - 12:00AM EST
+		- Added ALWAYS EXPERIMENTAL SpawnAdditionalCreature support
+			- Spawns configured amount of extra creatures at each creature
+			- Applies random strong velocity to "shake" creatures out of stuck
+			- Does NOT spawn additional creatures on creatures that have a "targetname", or will teleport in
+		- Added Detailed Nail Touch
+		- Added Pain Finished Time to Kickable Gib Collision Pain Sounds
+		- Added Creature Global Alpha Level (make all creatures less alpha for more challenge)
+		- Added MegaHealth Respawn Time
+		- Modified Cooperative Item Respawn Logic to Defer Respawn if RespawnTime is <= 0
+	* 8/10/06 - 6:00PM EST
+		- Added Default Impulse Section (4.1)
+		- Appended scream from player gib impacts (again)
+	* 8/8/06 - 10:42PM EST
+		- Modified Max Ammunition Values
+		- Modified Default All Gibs Persistent Value (now 0)
+		- Removed scream from player gib impacts
+	* 8/8/06 - 6:53PM EST
+		- Modified Damageable Gibbed Heads and Kickable Gibbed Heads to just Damageable Gibs and Kickable Gibs
+			- Supports Regular Gibs Now
+		- Added Comical Player Feedback to Colliding Kickable Gibs
+		- Tweaked All Gibs Persistent to now view a value of >= 2 as persistent PLAYER Gibs (both coop and deathmatch)
+	* 8/8/06 - 12:40PM EST
+		- Added Advancing Statistics System (MISC)
+		- Added Kickeable Gibbed Heads (MISC)
+		- Added All Gibs Persistent (MISC)
+	* 8/1/06 - 2:39PM EST
+		- Removed Suppress Player Backpack (COOP)
+		- Added Player Backpack System (COOP)
+		- Added Respawn at Death Location Reuse Delay Time (COOP; default is 0)
+		- Added Corpses Damageable with Radius Damage (MISC)
+		- Added Damageable Gibbed Heads (MISC)
+		- Added Corpses Aligned with Surface Normal (MISC)
+	* 7/30/06 - 4:26PM EST
+		- Added Exploding Items (2.4)
+		- Added Self Blinding Flash Light based on distance (FLASHLIGHT)
+		- Started Changelog

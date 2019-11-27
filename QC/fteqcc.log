@@ -1,0 +1,86 @@
+Args: fteqcc -srcfile Server.src
+FTEQCC: Oct 20 2019
+Source file: Server.src
+Outputfile: ../progs.dat
+in function Gyro_RunPhysics_Bouyancy (line 182),
+SVQC/GyroPhysics/gyro_physics.qc:184: warning F304: suggest parenthesis for unary operator that applies to multiple terms
+in function Gyro_RunPhysics_Resistance (line 331),
+SVQC/GyroPhysics/gyro_physics.qc:333: warning F304: suggest parenthesis for unary operator that applies to multiple terms
+in function Gyro_RunPhysics_Turbulence (line 700),
+SVQC/GyroPhysics/gyro_physics.qc:702: warning F304: suggest parenthesis for unary operator that applies to multiple terms
+in function Gyro_RunPhysics_GlobalTurb (line 822),
+SVQC/GyroPhysics/gyro_physics.qc:824: warning F304: suggest parenthesis for unary operator that applies to multiple terms
+in function Gyro_Force_Solver_Affector (line 1050),
+SVQC/GyroPhysics/gyro_forces.qc:1129: warning F304: suggest parenthesis for unary operator that applies to multiple terms
+in function Gyro_Force_Solver (line 1143),
+SVQC/GyroPhysics/gyro_forces.qc:1169: warning F304: suggest parenthesis for unary operator that applies to multiple terms
+SVQC/GyroPhysics/gyro_forces.qc:1180: warning F304: suggest parenthesis for unary operator that applies to multiple terms
+in function Gyro_RunForces (line 1304),
+SVQC/GyroPhysics/gyro_forces.qc:1386: warning F304: suggest parenthesis for unary operator that applies to multiple terms
+in function JunkFunction (line 5),
+SVQC/Dresk_JunkFuncs.qc:54: warning F307: type mismatch: void() JunkFunction to float() enJunk.customizeentityforclient
+SVQC/Dresk_JunkFuncs.qc:5:    const void() JunkFunction is defined here
+in function t_followtarget (line 14),
+SVQC/HipnoticQC/Hipnotic_AI.qc:20: warning F304: suggest parenthesis for unary operator that applies to multiple terms
+in function PlayerPainSound (line 6),
+SVQC/player.qc:106: warning F325: "/*" inside comment
+in function set_suicide_frame (line 471),
+SVQC/player.qc:479: warning F317: Stale macro used (deatha11, defined in SVQC/Dresk_PlayerAnimation.qc)
+in function func_door (line 451),
+SVQC/doors.qc:572: warning F307: type mismatch: void() door_killed to void(float fDamageType) self.th_die
+SVQC/doors.qc:186:    const void() door_killed is defined here
+in function fd_secret_use (line 616),
+SVQC/doors.qc:635: warning F307: type mismatch: void() SUB_Null to void(entity attacker, float damage, float fDamageType) self.th_pain
+SVQC/defs.qc:708:    const void() SUB_Null is defined here
+in function fd_secret_done (line 717),
+SVQC/doors.qc:722: warning F307: type mismatch: void() fd_secret_use to void(entity attacker, float damage, float fDamageType) self.th_pain
+SVQC/doors.qc:616:    const void() fd_secret_use is defined here
+in function func_door_secret (line 781),
+SVQC/doors.qc:830: warning F307: type mismatch: void() fd_secret_use to void(entity attacker, float damage, float fDamageType) self.th_pain
+SVQC/doors.qc:616:    const void() fd_secret_use is defined here
+SVQC/doors.qc:831: warning F307: type mismatch: void() fd_secret_use to void(float fDamageType) self.th_die
+SVQC/doors.qc:616:    const void() fd_secret_use is defined here
+in function func_button (line 95),
+SVQC/buttons.qc:133: warning F307: type mismatch: void() button_killed to void(float fDamageType) self.th_die
+SVQC/buttons.qc:71:    const void() button_killed is defined here
+in function trigger_multiple (line 157),
+SVQC/triggers.qc:190: warning F307: type mismatch: void() multi_killed to void(float fDamageType) self.th_die
+SVQC/triggers.qc:110:    const void() multi_killed is defined here
+in function monster_zombie (line 639),
+SVQC/monster_zombie.qc:725: warning F307: type mismatch: void() zombie_wake to void(entity attacker, float damage, float fDamageType) self.th_pain
+SVQC/monster_zombie.qc:631:    const void() zombie_wake is defined here
+SVQC/monster_zombie.qc:745: warning F307: type mismatch: void() zombie_escape to void(entity attacker, float damage, float fDamageType) self.th_pain
+SVQC/monster_zombie.qc:632:    const void() zombie_escape is defined here
+in function trigger_damagethreshold (line 48),
+SVQC/HipnoticQC/hip_brk.qc:75: warning F307: type mismatch: void() damagethreshold_pain to void(entity attacker, float damage, float fDamageType) self.th_pain
+SVQC/HipnoticQC/hip_brk.qc:28:    const void() damagethreshold_pain is defined here
+SVQC/HipnoticQC/hip_brk.qc:76: warning F307: type mismatch: void() damagethreshold_killed to void(float fDamageType) self.th_die
+SVQC/HipnoticQC/hip_brk.qc:12:    const void() damagethreshold_killed is defined here
+in function trap_spike_mine (line 124),
+SVQC/HipnoticQC/HIP_Monster_SpikeMine.qc:176: warning F307: type mismatch: void() spikemine_Touch to void(float fDamageType) self.th_die
+SVQC/HipnoticQC/HIP_Monster_SpikeMine.qc:62:    const void() spikemine_Touch is defined here
+at global scope,
+SVQC/HipnoticQC/hipspawn.qc:382: warning F325: "/*" inside comment
+in function gremlin_spawn1 (line 912),
+SVQC/HipnoticQC/hip_monster_grem.qc:913: warning F307: type mismatch: void() SUB_Null to void(entity attacker, float damage, float fDamageType) self.th_pain
+SVQC/defs.qc:708:    const void() SUB_Null is defined here
+in function gremlin_spawn6 (line 920),
+SVQC/HipnoticQC/hip_monster_grem.qc:921: warning F307: type mismatch: void(entity attacker, float damage) gremlin_pain to void(entity attacker, float damage, float fDamageType) self.th_pain
+SVQC/HipnoticQC/hip_monster_grem.qc:875:    const void(entity attacker, float damage) gremlin_pain is defined here
+in function monster_gremlin (line 1569),
+SVQC/HipnoticQC/hip_monster_grem.qc:1610: warning F307: type mismatch: void() gremlin_die to void(float fDamageType) self.th_die
+SVQC/HipnoticQC/hip_monster_grem.qc:1037:    const void() gremlin_die is defined here
+SVQC/HipnoticQC/hip_monster_grem.qc:1613: warning F307: type mismatch: void(entity attacker, float damage) gremlin_pain to void(entity attacker, float damage, float fDamageType) self.th_pain
+SVQC/HipnoticQC/hip_monster_grem.qc:875:    const void(entity attacker, float damage) gremlin_pain is defined here
+in function effect_finale_use (line 472),
+SVQC/HipnoticQC/hipmisc.qc:493: warning F304: suggest parenthesis for unary operator that applies to multiple terms
+in function trigger_explosion (line 186),
+SVQC/RogueQC/Rogue_newMisc.qc:197: warning F307: type mismatch: void() trigEx_die to void(float fDamageType) self.th_die
+SVQC/RogueQC/Rogue_newMisc.qc:172:    const void() trigEx_die is defined here
+in function func_elvtr_button (line 106),
+SVQC/RogueQC/Rogue_elevators.qc:146: warning F307: type mismatch: void() elvtr_button_killed to void(float fDamageType) self.th_die
+SVQC/RogueQC/Rogue_elevators.qc:77:    const void() elvtr_button_killed is defined here
+at global scope,
+SVQC/HipnoticQC/hip_monster_grem.qc:1353: warning F210: Sound "weapons/shotgn2.wav" was used but not directly precached
+Compile finished: ../progs.dat (id format)
+Done. 33 warnings

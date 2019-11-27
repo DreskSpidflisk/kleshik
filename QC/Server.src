@@ -1,0 +1,225 @@
+#pragma PROGS_DAT "../progs.dat"
+
+// Define Mods to Compile Support
+// #define COMPILE_MODSUPPORT_TRAVAIL
+
+// Display Messages
+#ifdef COMPILE_MODSUPPORT_TRAVAIL
+#message COMPILING WITH TRAVAIL SUPPORT 
+#endif
+
+// Define Serverside QC
+#define QC_SERVERSIDE
+
+// Define Use Axe and Shotgun External Models
+#define WEAPONENTITIES_USEAXEANDSHOTGUNEXTERNALMODELS
+
+// Primary Definitions
+#include "SVQC/defs.qc"
+
+// Support Darkplaces Extensions
+#include "SVQC/dpextensions.qc"
+
+// Definitions
+#include "SVQC/Dresk_Defs.qc"
+#include "SVQC/HipnoticQC/hipdefs.qc"
+
+// Initial Required Files
+#include "SVQC/Dresk_Prototypes.qc"
+#include "SVQC/Dresk_DamageTypes.qc"
+
+// Shared Game Code
+#include "SharedQC/SG_Sexes.qc"
+#include "SharedQC/SG_Sounds.qc"
+#include "SharedQC/SG_ImpactTypes.qc"
+#include "SharedQC/SG_ItemIDs.qc"
+#include "SharedQC/SG_Stats.qc"
+#include "SharedQC/SG_Misc.qc"
+#include "SharedQC/SG_HUD.qc"
+#include "SharedQC/SG_PlayerModels.qc"
+#include "SharedQC/SG_Impulses_Commands.qc"
+#include "SharedQC/SG_PlayerModels_Quake2.qc"
+#include "SharedQC/SG_TempEntities.qc"
+#include "SharedQC/SG_Weapons.qc"
+#include "SharedQC/SG_FlashLight.qc"
+#include "SharedQC/Weapons/SG_Weapon_Axe.qc"
+#include "SharedQC/Weapons/SG_Weapon_Shotgun.qc"
+#include "SharedQC/Weapons/SG_Weapon_SuperShotgun.qc"
+#include "SharedQC/Weapons/SG_Weapon_Nailgun.qc"
+#include "SharedQC/Weapons/SG_Weapon_SuperNailgun.qc"
+#include "SharedQC/Weapons/SG_Weapon_GrenadeLauncher.qc"
+#include "SharedQC/Weapons/SG_Weapon_RocketLauncher.qc"
+#include "SharedQC/Weapons/SG_Weapon_Thunderbolt.qc"
+#include "SharedQC/Weapons/SG_Weapon_ProximityGun.qc"
+#include "SharedQC/Weapons/SG_Weapon_Mjolnir.qc"
+#include "SharedQC/Weapons/SG_Weapon_LaserCannon.qc"
+#include "SharedQC/Weapons/SG_Weapon_LaserGun.qc"
+#include "SharedQC/Weapons/SG_Weapon_FlechetteCannon.qc"
+#include "SharedQC/Weapons/SG_Weapon_ChainGun.qc"
+
+#include "SVQC/Dresk_ServerCVars.qc"
+#include "SVQC/Dresk_WorldAmbientOneShotSounds.qc"
+
+// Gyro Physics Support
+#include "SVQC/GyroPhysics/gyro_main.qc"
+#include "SVQC/GyroPhysics/gyro_physics.qc"
+#include "SVQC/GyroPhysics/gyro_forces.qc"
+#include "SVQC/GyroPhysics/gyro_user.qc"
+
+// Primary Kleshik Gamecode
+#include "SVQC/Dresk_Sounds.qc"
+#include "SVQC/Dresk_MonsterFootsteps.qc"
+#include "SVQC/Dresk_CSQC.qc"
+#include "SVQC/Dresk_CSQC_TEs.qc"
+#include "SVQC/Dresk_RawStuffCmdToClient.qc"
+#include "SVQC/Dresk_ClientStatsScore.qc"
+#include "SVQC/Dresk_GameModes.qc"
+#include "SVQC/Dresk_HUDStinger.qc"
+#include "SVQC/Dresk_CSQCStats.qc"
+#include "SVQC/Dresk_WorldLightPulsation.qc"
+#include "SVQC/Dresk_Weapons.qc"
+#include "SVQC/Dresk_PlayerModels_Base.qc"
+#include "SVQC/Dresk_WeaponEvents.qc"
+#include "SVQC/Dresk_Powerups.qc"
+#include "SVQC/Dresk_Items.qc"
+#include "SVQC/Dresk_CorpseTwitching.qc"
+#include "SVQC/Dresk_PlayerModels_Quake2.qc"
+#include "SVQC/Dresk_PlayerAnimation.qc"
+#include "SVQC/Dresk_BloodGore.qc"
+#include "SVQC/Dresk_KleshikWeapons.qc"
+#include "SVQC/Dresk_ClientPlayer.qc"
+#include "SVQC/Dresk_ClientChatBubble.qc"
+#include "SVQC/Dresk_FloatingKeys.qc"
+#include "SVQC/Dresk_FloatingWeapons.qc"
+#include "SVQC/Dresk_World.qc"
+#include "SVQC/Dresk_BaseShared.qc"
+#include "SVQC/Dresk_CoopSharedItems.qc"
+#include "SVQC/Dresk_ThrowableFlares.qc"
+#include "SVQC/Dresk_Help.qc"
+#include "SVQC/Dresk_ClientCommands.qc"
+#include "SVQC/Dresk_CoopMain.qc"
+#include "SVQC/Dresk_FlashLight.qc"
+#include "SVQC/Dresk_PersonalTeleporter.qc"
+#include "SVQC/Dresk_AdvStatsScore.qc"
+#include "SVQC/Dresk_SpawnedMonsters.qc"
+#include "SVQC/Dresk_Monsters.qc"
+#include "SVQC/Dresk_EliteMonsters.qc"
+#include "SVQC/Dresk_PlayerDeath.qc"
+#include "SVQC/Dresk_RandomModEntities.qc"
+#include "SVQC/Dresk_JunkFuncs.qc"
+#include "SVQC/Dresk_ExplodingItemBoxes.qc"
+#include "SVQC/Dresk_AmbientEntities.qc"
+#include "SVQC/Dresk_ClientObituary.qc"
+
+// Various Mod Support
+#include "SVQC/Dresk_ModSupport_nesp09.qc"
+#include "SVQC/Dresk_ModSupport_soe.qc"
+
+#include "SVQC/subs.qc"
+
+#include "SVQC/fight.qc"
+#include "SVQC/HipnoticQC/Hipnotic_AI.qc"
+#include "SVQC/Newai.qc"
+#include "SVQC/combat.qc"
+#include "SVQC/items.qc"
+#include "SVQC/HipnoticQC/Hipnotic_Weapons.qc"
+#include "SVQC/weapons.qc"
+#include "SVQC/world.qc"
+#include "SVQC/RogueQC/Rogue_Quake.qc"
+#include "SVQC/HipnoticQC/hipquake.qc"
+#include "SVQC/client.qc"
+#include "SVQC/player.qc"
+#include "SVQC/monsters.qc"
+#include "SVQC/doors.qc"
+#include "SVQC/buttons.qc"
+#include "SVQC/triggers.qc"
+#include "SVQC/plats.qc"
+#include "SVQC/misc.qc"
+#include "SVQC/HipnoticQC/Hipnotic_Misc.qc"
+
+// Monsters
+#include "SVQC/monster_ogre.qc"
+#include "SVQC/monster_demon.qc"
+#include "SVQC/monster_shambler.qc"
+#include "SVQC/monster_knight.qc"
+#include "SVQC/monster_soldier.qc"
+#include "SVQC/monster_wizard.qc"
+#include "SVQC/monster_dog.qc"
+#include "SVQC/monster_zombie.qc"
+#include "SVQC/monster_boss.qc"
+#include "SVQC/monster_tarbaby.qc"
+#include "SVQC/monster_hknight.qc"
+#include "SVQC/monster_fish.qc"
+#include "SVQC/monster_shalrath.qc"
+#include "SVQC/monster_enforcer.qc"
+#include "SVQC/monster_oldone.qc"
+
+// Kleshik Monsters
+#include "SVQC/Dresk_KleshikMonster_BabyDragon.qc"
+#include "SVQC/Dresk_KleshikMonster_FireFiend.qc"
+#include "SVQC/Dresk_KleshikMonster_Flisker.qc"
+
+// HIPNOTIC SUPPORT
+#include "SVQC/HipnoticQC/hipsubs.qc"
+#include "SVQC/HipnoticQC/hip_brk.qc"
+#include "SVQC/HipnoticQC/hiptrain.qc"
+#include "SVQC/HipnoticQC/hip_expl.qc"
+#include "SVQC/HipnoticQC/hipcount.qc"
+#include "SVQC/HipnoticQC/hipitems.qc"
+#include "SVQC/HipnoticQC/HIP_Monster_SpikeMine.qc"
+#include "SVQC/HipnoticQC/hiprubbl.qc"
+#include "SVQC/HipnoticQC/hip_push.qc"
+#include "SVQC/HipnoticQC/hip_part.qc"
+#include "SVQC/HipnoticQC/hipspawn.qc"
+#include "SVQC/HipnoticQC/hip_monster_grem.qc"
+#include "SVQC/HipnoticQC/hip_monster_arma.qc"
+#include "SVQC/HipnoticQC/hipspike.qc"
+#include "SVQC/HipnoticQC/hiprot.qc"
+#include "SVQC/HipnoticQC/hip_monster_scrge.qc"
+#include "SVQC/HipnoticQC/hipholes.qc"
+#include "SVQC/HipnoticQC/hipclock.qc"
+#include "SVQC/HipnoticQC/hiptrig.qc"
+#include "SVQC/HipnoticQC/hipmisc.qc"
+#include "SVQC/HipnoticQC/hipwater.qc"
+#include "SVQC/HipnoticQC/hipdecoy.qc"
+
+// ROGUE SUPPORT
+#include "SVQC/RogueQC/Rogue_newMisc.qc"
+#include "SVQC/RogueQC/Rogue_newPlats.qc"
+#include "SVQC/RogueQC/Rogue_elevators.qc"
+#include "SVQC/RogueQC/Rogue_Lightning.qc"
+#include "SVQC/RogueQC/Rogue_newAI.qc"
+#include "SVQC/RogueQC/Rogue_MultiWeapons.qc"
+
+#include "SVQC/RogueQC/Rogue_monster_eel.qc"
+#include "SVQC/RogueQC/Rogue_monster_wrath.qc"
+#include "SVQC/RogueQC/Rogue_monster_super_wrath.qc"
+#include "SVQC/RogueQC/Rogue_monster_invis_sw.qc"
+#include "SVQC/RogueQC/Rogue_monster_mummy.qc"
+#include "SVQC/RogueQC/Rogue_monster_morph.qc"
+#include "SVQC/RogueQC/Rogue_monster_lavaman.qc"
+#include "SVQC/RogueQC/Rogue_monster_dragon.qc"
+
+#include "SVQC/RogueQC/Rogue_items.qc"
+
+#include "SVQC/RogueQC/Rogue_env_buzzsaw.qc"
+#include "SVQC/RogueQC/Rogue_env_pendulum.qc"
+
+#include "SVQC/RogueQC/Rogue_Ending.qc"
+#include "SVQC/RogueQC/Rogue_TimeMachine.qc"
+
+// TRAVAIL SUPPORT
+#ifdef COMPILE_MODSUPPORT_TRAVAIL
+#include "SVQC/TravailQC/Travail_MiscEnts.qc"
+#include "SVQC/TravailQC/Travail_Misc.qc"
+#include "SVQC/TravailQC/Travail_Triggers.qc"
+#include "SVQC/TravailQC/Travail_Items.qc"
+#include "SVQC/TravailQC/Travail_Monster_Enforcer.qc"
+#include "SVQC/TravailQC/Travail_Monster_Ubs.qc"
+#include "SVQC/TravailQC/Travail_Monster_Spider.qc"
+#include "SVQC/TravailQC/Travail_Monster_Juggernaut.qc"
+#include "SVQC/TravailQC/Travail_Monster_AzothFight.qc"
+#include "SVQC/TravailQC/Travail_Monster_Azoth.qc"
+#endif
+
+#include "SVQC/Dresk_PrecacheAssets.qc"

@@ -1,0 +1,77 @@
+#pragma PROGS_DAT "../csprogs.dat"
+
+// Define ClientSide QC
+#define QC_CLIENTSIDE
+
+// Define Use Axe and Shotgun External Models
+#define WEAPONENTITIES_USEAXEANDSHOTGUNEXTERNALMODELS
+
+// Primary Definitions
+#include "CSQC/Defs.qc"
+
+// CSQC Support
+// #define DEBUG_TESTMODEL
+#include "CSQC/csqc_constants.qc"
+#include "CSQC/csqc_builtins.qc"
+#include "CSQC/Prototypes.qc"
+
+// Shared Game Code
+#include "SharedQC/SG_Sexes.qc"
+#include "SharedQC/SG_Sounds.qc"
+#include "SharedQC/SG_ImpactTypes.qc"
+#include "SharedQC/SG_ItemIDs.qc"
+#include "SharedQC/SG_Stats.qc"
+#include "SharedQC/SG_Misc.qc"
+#include "SharedQC/SG_HUD.qc"
+#include "SharedQC/SG_PlayerModels.qc"
+#include "SharedQC/SG_Impulses_Commands.qc"
+#include "SharedQC/SG_PlayerModels_Quake2.qc"
+#include "SharedQC/SG_TempEntities.qc"
+#include "SharedQC/SG_Weapons.qc"
+#include "SharedQC/SG_FlashLight.qc"
+#include "SharedQC/Weapons/SG_Weapon_Axe.qc"
+#include "SharedQC/Weapons/SG_Weapon_Shotgun.qc"
+#include "SharedQC/Weapons/SG_Weapon_SuperShotgun.qc"
+#include "SharedQC/Weapons/SG_Weapon_Nailgun.qc"
+#include "SharedQC/Weapons/SG_Weapon_SuperNailgun.qc"
+#include "SharedQC/Weapons/SG_Weapon_GrenadeLauncher.qc"
+#include "SharedQC/Weapons/SG_Weapon_RocketLauncher.qc"
+#include "SharedQC/Weapons/SG_Weapon_Thunderbolt.qc"
+#include "SharedQC/Weapons/SG_Weapon_ProximityGun.qc"
+#include "SharedQC/Weapons/SG_Weapon_Mjolnir.qc"
+#include "SharedQC/Weapons/SG_Weapon_LaserCannon.qc"
+#include "SharedQC/Weapons/SG_Weapon_LaserGun.qc"
+#include "SharedQC/Weapons/SG_Weapon_FlechetteCannon.qc"
+#include "SharedQC/Weapons/SG_Weapon_ChainGun.qc"
+
+// Client CVars
+#include "CSQC/ClientCVars.qc"
+
+// Gyro Physics Support
+// #include "CSQC/GyroPhysics/gyro_main.qc"
+// #include "CSQC/GyroPhysics/gyro_physics.qc"
+// #include "CSQC/GyroPhysics/gyro_forces.qc"
+// #include "CSQC/GyroPhysics/gyro_user.qc"
+
+// Stick Physics Support
+#include "CSQC/StickPhysics/StickPhysicsDefs.qc"
+#include "CSQC/StickPhysics/StickPhysicsRagdoll.qc"
+#include "CSQC/StickPhysics/StickPhysicsObjects.qc"
+
+// Weapon Brass
+#include "CSQC/WeaponBrass.qc"
+
+// CSQC Files
+#include "CSQC/Misc.qc"
+#include "CSQC/PlayerModels.qc"
+#include "CSQC/PlayerModelInterface.qc"
+#include "CSQC/ModelSkinGeneration.qc"
+
+#include "CSQC/WeaponEffects.qc"
+#include "CSQC/Powerups.qc"
+#include "CSQC/TEEffects.qc"
+#include "CSQC/TEParses.qc"
+
+#include "CSQC/HUDEffects.qc"
+#include "CSQC/View.qc"
+#include "CSQC/Main.qc"

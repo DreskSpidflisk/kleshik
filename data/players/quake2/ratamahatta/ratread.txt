@@ -1,0 +1,20 @@
+
+
+NAME: ratsounds.zip
+
+
+DESCRIPTION: Sounds for the new kick ass model "Ratamahatta".
+
+
+AUTHOR:  Balthus Dire
+
+
+MAILTO: evan_13@hotmail.com
+
+
+INSTRUCTIONS: Just unzip these sound files into your 
+              c:/quake2/baseq2/ratamahatta/  directory!
+
+
+
+PLEASE DO NOT COPY THIS SOUNDPACK.

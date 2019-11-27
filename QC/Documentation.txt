@@ -1,0 +1,803 @@
+Kleshik Modification v0.8.2
+Supports Quake and the Two Mission Packs (hipnotic, rogue)
+by Dresk (dresk@comcast.net)
+
+1.0		OVERVIEW
+--------------------------------------
+	The Kleshik for Quake Modificaton is a modification for iD Software's Quake.  The primary goal of the Kleshik modification is to add various features supportive of the cooperative gametype, providing additional information and capabilities.  The secondary goal is to add feedback of any form to all gameplay elements, including but not limited to additional / different blood, more detailed gibbing physics, various weapon response elements and more.  The modification should also require little to no additional client data (outside of auto-downloading CSQC).
+	
+	This modification supports both Quake mission packs, Hipnotic and Rogue.  Their features are built into the Kleshik modification code and are enabled through CVars as detailed in the documentation.
+	
+1.1		REQUIREMENTS
+--------------------------------------
+	This modification primarily requires the Darkplaces Engine as many extensions are used, all of which Darkplaces supports.  Other engines may be capable of supporting the modification if they meet the extensions requirements outlined below.
+	
+	For compiling the modification, FTEQCC is required due to minimal usage of arrays and extensive usage of C-style function declarations.
+	
+	EXTENSIONS USED LISTING
+	------------------------------------------------------------------------------------------------------------------------------
+	DP_BUTTONCHAT, DP_INPUTBUTTONS, DP_MOVETYPEBOUNCEMISSILE, DP_REGISTERCVAR,
+	DP_EF_ADDITIVE, DP_ENT_ALPHA, DP_EF_BLUE, DP_EF_FLAME, DP_EF_FULLBRIGHT, DP_EF_NODRAW, DP_EF_NOSHADOW, DP_EF_RED, DP_EF_STARDUST,
+	DP_ENT_COLORMOD, DP_ENT_GLOW, DP_ENT_LOWPRECISION, DP_ENT_SCALE, DP_ENT_VIEWMODEL,
+	DP_GFX_FOG, DP_GFX_QUAKE3MODELTAGS,
+	DP_QC_CVAR_STRING, DP_QC_FINDFLOAT, DP_QC_GETSURFACE, DP_QC_MINMAXBOUND, DP_QC_STRINGCOLORFUNCTIONS, DP_QC_TRACEBOX,
+	DP_TE_BLOOD, DP_TE_BLOODSHOWER, DP_TE_CUSTOMFLASH, DP_TE_EXPLOSIONRGB, DP_TE_QUADEFFECTS1, DP_TE_SMALLFLASH, DP_TE_SPARK, DP_TE_STANDARDEFFECTBUILTINS,
+	DP_TRACE_HITCONTENTSMASK_SURFACEINFO,
+	DP_SV_ENTITYCONTENTSTRANSITION, DP_SV_MODELFLAGS_AS_EFFECTS,
+	FRIK_FILE,
+	KRIMZON_SV_PARSECLIENTCOMMAND
+	
+1.2		NOTES
+--------------------------------------
+	It is very likely that I have missed some of my modifications, or have not explained everything in full detail.  Please do not assume this document is the end-all, be-all of my modification.
+	
+	To view the modification's Change Log, please view the ChangeLog.txt, associated with the location of this file.
+	
+1.3		QUICK HELP FOR EXPANSION PACKS AND ADDITIONAL MODS
+--------------------------------------
+	Kleshik supports the two Quake expansion packs, Hipnotic and Rogue.  Kleshik does NOT contain the data assets for these mods, however.  You must have both the "rogue" and "hipnotic" folder in your Quake path, with the appropriate data files.
+	
+	To tell Kleshik to load the data files for these mods, in the Darkplaces console, type in the following command when not playing any games : gamedir rogue hipnotic kleshik
+	
+	This will have Darkplaces load, in the order specified, the data files for the mods.  This results in the data for Rogue, Hipnotic and Kleshik to be loaded (along with id1, the base Quake game which is always loaded).
+	
+	You may add additional mods through this method as well.  For example, to use the Masque of Red Death mod, enter this command in the console : gamedir rogue hipnotic masque kleshik
+	
+2.0		FEATURES
+--------------------------------------
+	The features are broken down into categories reflecting their properties and functionality.
+
+2.1	FEATURES - COOPERATIVE
+--------------------------------------
+	FEATURE : Cooperative Shared Weapons Pool
+		DESCRIPTION	: All weapons collected by any player in cooperative will be immediately provided to all players, removing the necessity of re-collecting weapons before exitting the level if having lost the weapons during the level.
+		CVAR		: kleshik_coop_SharedWeaponsPool "1"
+		
+	FEATURE : Cooperative Shared Ammo Pool
+		DESCRIPTION	: All ammunition in cooperative is shared amongst all players.  Maximum ammunition levels are capped to 999 for client display purposes.  Player backpack drops on death are suppressed in this mode.
+		CVAR		: kleshik_coop_SharedAmmoPool "1"
+		NOTE		: CVar takes effect on map change.
+		
+	FEATURE : Cooperative Frags Based on Monsters Killed
+		DESCRIPTION	: Instead of the standard frag system which reduces frags due to deaths and adds frags due to player kills (in cooperative?), frags are awarded for each monster killed by a player in cooperative.  If assigned to 2, frags are transitioned through maps.
+		CVAR		: kleshik_coop_FragsBasedOnMonstersKilled "2"
+		NOTE		: CVar takes effect on map change.
+		
+	FEATURE : Reset Health and Armor at Every Level
+		DESCRIPTION	: Specifies the behavior of a player's health and armor at level transition.  If set to 1, a player's health will always be 100 at the next level.  If set to 2, the player will lose all armor as well.
+		CVAR		: kleshik_coop_ResetHealthAndArmorEveryLevel "1"
+
+	FEATURE : Cooperative Mirror Friendly Damage
+		DESCRIPTION	: If enabled during a cooperative game, when attacked by a friendly teammate, the damage is instead mirrored to the attacker, leaving the original victim unharmed.
+		CVAR		: kleshik_coop_MirrorFriendlyDamage "0"
+		
+	FEATURE : Broadcast Secret Area Find
+		DESCRIPTION	: Broadcasts a message reflecting the individual whom found a secret area.
+		EXAMPLE		: "Dresk has found a Secret Area!"
+		CVAR		: kleshik_coop_BroadcastClientSecretAreaFind "1"
+		
+	FEATURE : Broadcast Client Key Events
+		DESCRIPTION	: Broadcasts a message reflecting the individual whom found a key.
+		EXAMPLE		: "Dresk acquired the Silver Key!"
+		CVAR		: kleshik_coop_BroadcastClientKeyEvents "1"
+		
+	FEATURE : Broadcast Relative Centerprints
+		DESCRIPTION	: Broadcasts centerprints to all clients that are induced either by triggers or custom door messages.
+		EXAMPLE		: "Dresk received the message : \nDadadada"
+		CVAR		: kleshik_coop_BroadcastCenterprints "1"
+		
+	FEATURE : Allow Respawn at Death Location
+		DESCRIPTION	: When killed, a client may press attack to spawn at their death location, or jump to spawn at a regular coop location.
+		CVAR		: kleshik_coop_RespawnAtDeathLocation_Allow "0"
+		
+	FEATURE : Respawn at Death Location Reuse Time
+		DESCRIPTION	: Specifies the amount of reuse time before a player may respawn at their death location again.
+		CVAR		: kleshik_coop_RespawnAtDeathLocation_ReuseTime "0"
+		
+	FEATURE : Player Backpack System
+		DESCRIPTION	: Dictates the system used for player backpacks in cooperative.  If Cooperative Shared Ammo is enabled, player backpack drops are disabled in cooperative.
+		CVAR		: kleshik_coop_PlayerBackpackSystem "1"
+		
+			MODE		DESCRIPTION
+			-------------------------------------------------------
+			0			Standard System (backpacks drop, ammo is added)
+			1			"Replace Ammo" System (backpacks drop, ammo is replaced if ammo in backpack is greater than current ammo)
+			2			No Backpacks Dropped
+		
+	FEATURE : Broadcast Player Backpack Pickups
+		DESCRIPTION	: Player-dropped backpacks are colorized, fullbrighted and broadcasted when picked up, referring the acquiring individual as well.
+		EXAMPLE		: "Dresk picked up USteppin's backpack!"
+		CVAR		: kleshik_coop_BroadcastPlayerBackpackPickups "1"
+		
+	FEATURE : Suppress Telefrag on Spawn
+		DESCRIPTION	: Suppresses a potential telefrag when spawning under cooperative, preventing massive telefragging (though fun) on maps that have only one spawn point.
+		CVAR		: kleshik_coop_SuppressTelefragOnSpawn "1"
+		
+2.2		FEATURES - PERSONAL TELEPORTER
+--------------------------------------
+	FEATURE : Personal Teleporter - Impulse
+		DESCRIPTION	: Given a client uses the configured impulse, a menu is displayed showing all other clients that may be teleported to, along with the cooperative spawn locations and silver / gold keys (if found).  Disabled if impulse is 0.
+		CVAR		: kleshik_PersonalTeleporter_Impulse "50"
+		
+	FEATURE : Personal Teleporter - Reuse Delay Time
+		DESCRIPTION	: Specifies the amount of time that a client must wait before being able to use the personal teleporter again.
+		CVAR		: kleshik_PersonalTeleporter_ReuseDelayTime "2"
+		
+	FEATURE : Personal Teleporter - Allow Key Teleports
+		DESCRIPTION	: Specifies if direct teleports to keys found in the map are allowed.  A teleport to a key is only unlocked if a player finds the key.
+		CVAR		: kleshik_PersonalTeleporter_AllowKeyTeleports "1"
+		
+	FEATURE : Personal Teleporter - Allow Door Key Teleports
+		DESCRIPTION	: Specifies if direct teleports to doorkeys (Silver Door, Gold Door) found in the map are allowed.  A teleport to a doorkey is only unlocked if a player touches the door.
+		CVAR		: kleshik_PersonalTeleporter_AllowDoorKeyTeleports "1"
+		
+2.3		FEATURES - GAME MODE
+--------------------------------------
+	FEATURE : Gyro Physics Enabled
+		DESCRIPTION	: If enabled, the Kleshik Sound Pack will be utilized.  The sound pack includes over two dozen new ambient sounds that are spawned randomly throughout maps, adding substantial ambience.  New player sounds, including impact events, water events, movement events and more also come with the pack.  Item Sounds also become more specific.  The pack is highly recommended, although it requires a client download, and therefore may be disabled.
+		CVAR		: kleshik_gamemode_KleshikSoundPack_Enabled "1"
+		NOTE		: CVar takes effect on map change.
+		
+	FEATURE : Gyro Physics Enabled
+		DESCRIPTION	: If enabled, Gyro Physics will be utilized, providing additional realistic / exaggerated physics properties to entites.
+		CVAR		: kleshik_gamemode_GyroPhysics_Enabled "1"
+		NOTE		: CVar takes effect on map change.
+		
+	FEATURE : Gyro Physics Detail Entities
+		DESCRIPTION	: If enabled, non-essential entities such as gibbed heads, corpses and more will have Gyro Physics (when Gyro is enabled).  May utilize significant bandwidth.
+		CVAR		: kleshik_gamemode_GyroPhysics_DetailEntities "0"
+		NOTE		: CVar takes effect on map change.
+	
+	FEATURE : Hipnotic Enabled
+		DESCRIPTION	: If enabled, the QuakeC code will utilize the functionality of the Hipnotic mission pack.  Functionality includes all monsters, all map features (rotating brushes, etc) and only the Empathy Shields item.  This allows for a fully playable Hipnotic Mission Pack experience.  If you are playing the Hipnotic modification, or are using a custom map that requires the Hipnotic mission pack, MAKE SURE THIS IS 1.
+		CVAR		: kleshik_gamemode_Hipnotic_Enabled "0"
+		NOTE		: CVar takes effect on map change.
+		
+	FEATURE : Hipnotic Legacy Items
+		DESCRIPTION	: If enabled, Hipnotic weapons will transparently be included in weapon pickups of vanilla Quake weapons.  This allows for Hipnotic weapons to be used on maps that do not contain them, but Hipnotic mode is enabled.
+		CVAR		: kleshik_gamemode_Hipnotic_LegacyItems "0"
+		NOTE		: CVar takes effect on map change.
+		
+			WEAPON							HIPNOTIC WEAPONS INCLUDED
+			-------------------------------------------------------
+			Grenade Launcher				Proximity Gun
+			Rocket Launcher					Mjolnir
+			Lighting Bolt					Laser Gun
+		
+	FEATURE : Hipnotic Footsteps
+		DESCRIPTION	: If enabled, players will generate footstep sounds.  Previously this was enabled with an interesting hack of the CVar "crosshair" being the value 2.  This system is both haphazard and unsupported in Darkplaces due to many more crosshairs now being supported.
+		CVAR		: kleshik_gamemode_Hipnotic_Footsteps "0"
+		NOTE		: CVar takes effect on map change.
+		
+	FEATURE : Hipnotic Non-Players Inherity Gravity
+		DESCRIPTION	: Specifies if non-player entities should inherit the gravity modifications that exist in Hipnotic maps.
+		CVAR		: kleshik_gamemode_Hipnotic_NonPlayersInheritGravity "1"
+		NOTE		: CVar takes effect on map change.
+		
+	FEATURE : Use Hipnotic Monster Replacements
+		DESCRIPTION	: Specifies if Hipnotic monsters should be used in the random monster replacements, allowing Hipnotic monsters to appear on non-Hipnotic maps.
+		CVAR		: kleshik_gamemode_Hipnotic_UseHipnoticMonsterReplacements "1"
+		NOTE		: CVar takes effect on map change.
+		
+			MONSTER							PERCENT CHANCE / REPLACEMENT
+			-------------------------------------------------------
+			Demon							20% / Centroid (strong variant; fires super nails)
+			Enforcer						20% / Centroid
+			Zombie							25% / Mummy
+
+	FEATURE : Rogue Enabled
+		DESCRIPTION	: If enabled, the QuakeC code will utilize some of the functionality of the Rogue mission pack.  Functionality includes all monsters, alternate-fire weapon substitutions (button3), all map features and no additional items.  This allows for a fully playable Rogue Mission Pack experience.  If you are playing the Rogue modification, or are using a custom map that requires the Rogue mission pack, MAKE SURE THIS IS 1.
+		CVAR		: kleshik_gamemode_Rogue_Enabled "0"
+		NOTE		: CVar takes effect on map change.
+		
+	FEATURE : Use Rogue Monster Replacements
+		DESCRIPTION	: Specifies if Rogue monsters should be used in the random monster replacements, allowing Rogue monsters to appear on non-Rogue maps.
+		CVAR		: kleshik_gamemode_Rogue_UseRogueMonsterReplacements "1"
+		NOTE		: CVar takes effect on map change.
+		
+			MONSTER							PERCENT CHANCE / REPLACEMENT
+			-------------------------------------------------------
+			Knight							35% / Invisible Sword
+			Fish							45% / Eel
+			Scrag							10% / Wrath
+		
+2.4		FEATURES - PLAYER
+--------------------------------------
+	FEATURE : Enable Chat Bubbles
+		DESCRIPTION	: Specifies if, when players are chatting, using the menus or console, a small bubble sprite should appear over their head.
+		CVAR		: kleshik_player_EnableChatBubbles "1"
+		NOTE		: CVar takes effect on map change.
+
+	FEATURE : Respawn Time
+		DESCRIPTION	: Specifies the amount of time a player must wait before being allowed to respawn, gibbed or not.
+		CVAR		: kleshik_player_RespawnTime "1.3"
+		
+	FEATURE : BodyQue Size
+		DESCRIPTION	: Specifies the size of the player bodyque, which is the allotment of player corpses allowed at a given time.  Must be greater than 0.
+		CVAR		: kleshik_player_BodyQueSize "50"
+		NOTE		: CVar takes effect on map change.
+		
+	FEATURE : Broadcast Player Cheats
+		DESCRIPTION	: Specifies if cheats used by players (when enabled) should be broadcasted in detail of what cheat was used.  Useful if cheats are enabled for emergency purposes (such as noclip).
+		CVAR		: kleshik_player_BroadcastPlayerCheats "1"
+		
+	FEATURE : Add Ground Velocity to Jump
+		DESCRIPTION	: If enabled, applies the velocity of the player's current ground brush to the player when jumping.  This breaks local movement prediction for a few frames, but is recommended nonetheless due to the tricks that may be performed.
+		CVAR		: kleshik_player_AddGroundVelocityToJump "1"
+		NOTE		: CVar takes effect on map change.
+		
+	FEATURE : Drop Powerups on Death
+		DESCRIPTION	: If enabled, when a player is killed, all relevant powerups they had will be dropped (invisibility, quad damage, invulnerability, etc.) with their timers set correctly to the time the player had remaining.
+		CVAR		: kleshik_player_DropPowerupsOnDeath "1"
+		
+	FEATURE : Use Generic Jump and Land Sound
+		DESCRIPTION	: If enabled, a generic sound will be played for players (regardless of model) for jumping and minor landing.  These sounds are played in the CHAN_AUTO channel, instead of the standard Quake CHAN_VOICE behavior (where the sound contained vocals).
+		CVAR		: kleshik_player_UseGenericJumpAndLandSound "1"
+		
+2.5		FEATURES - PLAYER MODEL
+--------------------------------------
+	FEATURE : Allow Player Model Changes
+		DESCRIPTION	: Specifies if players are allowed to change their player model.  Due to no client-side coding, if a client does not have the model that a player is using, they will display as a colored diamond.
+		CVAR		: kleshik_PlayerModel_AllowPlayerModelChanges "1"
+		
+	FEATURE : Allow Player Model Type - Quake2
+		DESCRIPTION	: Specifies if Quake2 player models are allowed.  Quake2 players utilize all animations, including crouching and all taunts.  Sounds for the player model may also be used.
+		CVAR		: kleshik_PlayerModel_AllowPlayerModelType_Quake2 "1"
+		
+	FEATURE : Player Model Reuse Delay Time
+		DESCRIPTION	: Specifies the delay in seconds before a client may switch their player model, after having just switched.
+		CVAR		: kleshik_PlayerModel_ReuseDelayTime "2"
+		
+	FEATURE : Crouch - Interactivity Level
+		DESCRIPTION	: Specifies the "interactivity" level of crouching with player models.  View the table for reference as to the effects.
+		CVAR		: kleshik_PlayerModel_Crouch_InteractivityLevel "2"
+		NOTE		: CVar takes effect on map change.
+		
+		LEVEL		EFFECTS
+		-------------------------------------------------------
+		0			Crouching Disabled
+		1			Crouching Enabled; Purely Aesthetic
+		2			Crouching Enabled; Affects Player Size and View Offsets
+		
+	FEATURE : Crouch - Interactivity Level
+		DESCRIPTION	: Specifies the attack refire percent reduction when crouching.  For example, if set to 30, the refire time on all weapons will be reduced by 30% when crouching and the crouching interactivity level permits thus.  Disabled if 0.
+		CVAR		: kleshik_PlayerModel_Crouch_AttackRefirePercentReduction "30"
+		NOTE		: CVar takes effect on map change.
+		
+2.6	FEATURES - PLAYER DEATH
+--------------------------------------
+	FEATURE : Use Death Effects
+		DESCRIPTION	: Enables the processing of various effects due to player death.  These effects are primarily meant as a hinderence to all others, but also provide additional chaotic feedback to the game.
+		CVAR		: kleshik_PlayerDeath_UseDeathEffects "1"
+		
+	FEATURE : Blood Explosion Percent Chance
+		DESCRIPTION	: Given the percent chance specified is met, when a player is killed a blood explosion (in the form of a te_bloodshower effect) will be created on every player.
+		CVAR		: kleshik_PlayerDeath_BloodExplosionPercentChance "60"
+		
+	FEATURE : HUD Stinger Percent Chance
+		DESCRIPTION	: During a player respawn, given the percent chance specified is met, a HUD stinger (currently a burning pentagram) will very briefly flash in front of the view of every player, potentially disorientating them and otherwise adding more feedback to player death.
+		CVAR		: kleshik_PlayerDeath_HUDStingerPercentChance "15"
+		
+	FEATURE : Elite Monster Percent Chance
+		DESCRIPTION	: Given the percent chance specified is met, the monster that killed the player gains various bonuses.  The monster will glow red, along with restoring full health at 2X their spawned health value.  Explosive projectiles (grenades, rockets, etc.) bounce off the creature.
+		CVAR		: kleshik_PlayerDeath_EliteMonsterPercentChance "100"
+		
+2.7		FEATURES - WORLD
+--------------------------------------
+	FEATURE : Create Spawn Point Models
+		DESCRIPTION	: Spawns pentagrams that reside on the floor at the locations of spawn points in the map.  Only relevant gametype spawn points are created.  Currently the spawn points become static entities on the client to prevent the desire model from spinning due to a modelflag.
+		CVAR		: kleshik_world_CreateSpawnPointModels "1"
+		
+	FEATURE : Water Fog Hacks Enabled
+		DESCRIPTION	: Utilizes the Darkplaces client fog system to apply fog to a client when entering water (water, slime, lava).  The fog varies amongst the three content types.
+		CVAR		: kleshik_world_WaterFogHacksEnabled "1"
+		
+	FEATURE : Water CD Track
+		DESCRIPTION	: Specifies the (fake) CD Track to be played when a player is underwater.  The Kleshik Sound Pack includes an underwater sound for track 1.  Disabled if 0.
+		CVAR		: kleshik_world_WaterCDTrack "1"
+		
+	FEATURE : Normal Lightmap Animation
+		DESCRIPTION	: Specifies the animation levels of the normal lightmaps. Brightness is specified as a lowercase letter from a (darkest) to z (brightest).
+		CVAR		: kleshik_world_NormalLightmapAnimation "m"
+		
+	FEATURE : Night and Day Time Update
+		DESCRIPTION	: If greater than 0, this specifies for the global lightmap level to initially decrement down to complete darkness, followed by incrementing to the specified max light level (no greater than 25), continuing this pattern.  The light is modified at the CVar's interval as specified.
+		CVAR		: kleshik_world_NightAndDayTimeUpdate "20", kleshik_world_NightAndDay_MinLightLevel "0", kleshik_world_NightAndDay_MaxLightLevel "14"
+		NOTE		: This CVar overrides the functionality of "kleshik_world_NormalLightmapAnimation".
+		NOTE		: CVar takes effect on map change.
+		
+	FEATURE : Disable All Dynamic Light Pulsations
+		DESCRIPTION	: Specifies if all dynamic light pulsation types should be disabled.  All light pulsation types may be individually toggled through their relevant CVars, but this single CVar allows for an easy global disabling of the feature.
+		CVAR		: kleshik_world_DisableAllDynamicLightPulsations "0"
+		
+	FEATURE : Global Fog System
+		DESCRIPTION	: Enables fog throughout the world, utilizing the density and color specified in the relevant CVars.
+		CVAR		: kleshik_world_GlobalFog_Enabled "0", kleshik_world_GlobalFog_Color "1 1 1", kleshik_world_GlobalFog_Density "0.02"
+		
+	FEATURE : Brush Crushes Instant Kill
+		DESCRIPTION	: Specifies the behavior behind crushing brushes.  If set to 1 or greater, all monsters being crushed by anything in the environment will be killed immediately.  If set to 2 or greater, players are affected by the same fate.  Given an instant kill, the brush continues on its path, not reversing itself.
+		CVAR		: kleshik_world_BrushCrushesInstantKill "2"
+		
+	FEATURE : Insane Lavaballs
+		DESCRIPTION	: If enabled, lavaball spawners will spawn lavaballs within 2 seconds constantly, having increased lavaball velocity and radius damage.  Not exactly fair, but fun for cooperative gameplay.
+		CVAR		: kleshik_world_InsaneLavaballs "1"
+		NOTE		: CVar takes effect on map change.
+
+2.8		FEATURES - MISC
+--------------------------------------
+	FEATURE : Bleed at Health Percentile
+		DESCRIPTION	: Specifies the health percentile at which players or creatures should bleed.  Specify 0 to disable.
+		CVAR		: kleshik_misc_BleedAtHealthPercentile "60"
+		NOTE		: CVar takes effect on map change.
+		
+	FEATURE : Corpse Twitch Maximum
+		DESCRIPTION	: Twitches an entity's corpse at random intervals for the maximum amount of times specified.  Assigned at level load for performance reasons.  Disabled if 0.
+		CVAR		: kleshik_misc_CorpseTwitchMaximum "16"
+		NOTE		: CVar takes effect on map change.
+		
+	FEATURE : Blood Shower Amount on Death
+		DESCRIPTION	: Utilizes the te_bloodshower effect with the specified amount of particles on creature / player death.
+		CVAR		: kleshik_misc_BloodShowerAmountOnDeath "150"
+		
+	FEATURE : Explosives Always Gib
+		DESCRIPTION	: If set to 1, during death, if an explosive material was used, the target is always gibbed.  If set to 2, during death, ONLY explosive material may gib the target.
+		CVAR		: kleshik_misc_ExplosivesAlwaysGib "2"
+		
+	FEATURE : Spawn Fading Copy at Teleport
+		DESCRIPTION	: Specifies if a copy of the entity experiencing a teleport should spawn at the entity's location prior to teleporting.  If set to 1, only players will experience this effect.  If set to 2, all entities will experience the effect.
+		CVAR		: kleshik_misc_SpawnFadingCopyAtTeleport "2"
+		
+	FEATURE : Use Directional Throw Gib
+		DESCRIPTION	: Instead of randomizing velocities for thrown gibs, the velocity is derived from the last known damage caused to the entity.
+		CVAR		: kleshik_misc_UseDirectionalThrowGib "1"
+		
+	FEATURE : Gibs on Death
+		DESCRIPTION	: Spawns a maximum of additional random gibs on creature / player death.
+		CVAR		: kleshik_misc_MaximumGibsOnDeath "4"
+		
+	FEATURE : Flaming Gibbed Head Level
+		DESCRIPTION	: Specifies the "level" of gibbed heads become aflame.  If set to 1, only freshly killed entities will have a flaming gibbed head.  If set to 2, gibbed head from corpses will also be set aflame.
+		CVAR		: kleshik_misc_FlamingGibbedHead_Level "1"
+		
+	FEATURE : Flaming Gibbed Head Max Time
+		DESCRIPTION	: Specifies the maximum amount of time, in seconds, that a flaming gibbed head will persist.
+		CVAR		: kleshik_misc_FlamingGibbedHead_MaxTime "3"
+		
+	FEATURE : Use Global Sounds for Events
+		DESCRIPTION	: Plays sounds throughout the world instead of locally to events, such as secret areas, key acquisitions, etc.
+		CVAR		: kleshik_misc_UseGlobalSoundsForEvents "1"
+		
+	FEATURE : Align Corpses with Surface Normal
+		DESCRIPTION	: Aligns corpses with the normal of the surface, no longer jutting through planes. (thanks div0 for algorithm)
+		CVAR		: kleshik_misc_AlignCorpsesWithSurfaceNormal "1"
+		
+	FEATURE : Corpses Gibbable with Radius Damage
+		DESCRIPTION	: Corpses may be gibbed due to radius damage (bullets / nails / others do not gib PURPOSELY)
+		CVAR		: kleshik_misc_CorpsesGibbableWithRadiusDamage "1"
+		
+	FEATURE : Damageable Gibs
+		DESCRIPTION	: If >= 1, gibbed heads may be damaged by explosives, causing them to fly and bounce.  If >= 2, all gibs may experience this behavior.
+		CVAR		: kleshik_misc_DamageableGibs "1"
+		
+	FEATURE : Kickable Gibs
+		DESCRIPTION	: If >= 1, gibbed heads may be kicked on touch, causing them to fly and bounce.  If >= 2, all gibs may experience this behavior.
+		CVAR		: kleshik_misc_KickableGibs "1"
+		
+	FEATURE : All Gibs Persistent
+		DESCRIPTION	: Specifies if gibs thrown during death routines for players and monsters are persistent (never disappear).  If the value is 1 or greater, all gibs spawned from monsters are persistent.  If the value is 2, all gibs spawned, both from players and monsters, are persistent.
+		CVAR		: kleshik_misc_AllGibsPersistent "0"
+		
+	FEATURE : Advanced Statistics System / Impulse
+		DESCRIPTION	: Given a client uses the configured impulse, a centerprint containing a breakdown of each individual monster, item, powerup and more is displayed, along with the current / total numbers.
+		CVAR		: kleshik_misc_AdvancedStatisticsImpulse "100"
+		
+	FEATURE : Advanced Statistics at Intermission
+		DESCRIPTION	: Displays the Advanced Statistics at Intermission if enabled.
+		CVAR		: kleshik_misc_AdvancedStatisticsAtIntermission "1"
+		
+	FEATURE : Client Scores System / Impulse
+		DESCRIPTION	: Given a client uses the configured impulse, a centerprint containing a breakdown of individual client scores is displaying in table format, including details such as kills, deaths, ammo used, ammo acquired and more.
+		CVAR		: kleshik_misc_ClientScoresImpulse "102"
+		
+	FEATURE : Client Scores at Intermission
+		DESCRIPTION	: Displays the Client Scores at Intermission if enabled.
+		CVAR		: kleshik_misc_ClientScoresAtIntermission "1"
+		
+	FEATURE : Intelligent Impulse Processing System
+		DESCRIPTION	: Allows client impulses to be processed, even when a weapon is being fired.  This allows things like toggling the FlashLight to occur when normally impulse commands are not accepted.
+		CVAR		: N/A
+		
+	FEATURE : Cheats in Cooperative if sv_cheats = 1
+		DESCRIPTION	: Allows standard Quake cheats in cooperative mode (including impulse cheats) if sv_cheats is equal to 1.
+		CVAR		: N/A
+		
+	FEATURE : Impulse 9 Cheat Weapon Select Deferred
+		DESCRIPTION	: The impulse 9 cheat no longer automatically selects the Rocket Launcher.
+		CVAR		: N/A
+		
+	FEATURE : te_bloodshower substituted for te_blood calls
+		DESCRIPTION	: Most weapons call te_blood on targets when hit, spawning a small amount of blood.  This has been replaced by te_bloodshower, spawning a small amount of exploding blood, resulting in a more visceral combat experience.
+		CVAR		: N/A
+		
+2.9		FEATURES - ITEMS
+--------------------------------------
+	FEATURE : Fade Unavailable Items
+		DESCRIPTION	: Instead of rendering an unavailable item invisible, the item is colormodded to a green shade and alpha blended, resetting once the item respawns.
+		CVAR		: kleshik_item_FadeUnavailableItems "1"
+		
+	FEATURE : Coop Items Respawn
+		DESCRIPTION	: Items in cooperative respawn, instead of becoming permanately unavailable.
+		CVAR		: kleshik_item_CoopItemsRespawn "1"
+		
+	FEATURE : Use Colored Lights for Powerups
+		DESCRIPTION	: Enables a red light for the Pentagram and a blue light for the Quad Damage.
+		CVAR		: kleshik_item_UseColoredLightsForPowerups "1"
+		
+	FEATURE : Powerup - Times Added
+		DESCRIPTION	: If enabled, powerup times are added together, instead of replacing the current time.  For example, acquiring two Quad Damages would mean 30 + 30 seconds total time, instead of just 30 seconds.
+		CVAR		: kleshik_item_Powerup_TimesAdded "1"
+		
+	FEATURE : Powerup - Invisibility - Use Alpha Level
+		DESCRIPTION	: Specifies the alpha level to apply to a player when they have invisibility, instead of using the "eyes" model.  Disabled if 0.
+		CVAR		: kleshik_item_Powerup_Invisibility_UseAlphaLevel "0.30"
+		
+	FEATURE : Disable Item Pickup Messages
+		DESCRIPTION	: Specifies if the pickup message pertaining to the item acquired should be displayed to the player.
+		CVAR		: kleshik_item_DisablePickupMessage_Ammo "0", kleshik_item_DisablePickupMessage_Backpack "0", kleshik_item_DisablePickupMessage_Health "0", kleshik_item_DisablePickupMessage_Weapon "0", kleshik_item_DisablePickupMessage_Powerup "0"
+		NOTE		: CVar takes effect on map change.
+		
+	FEATURE : Coop Item Respawn Times
+		DESCRIPTION	: CVar-specified Item Respawn Times
+		CVAR		: kleshik_item_RespawnTime_AmmoHealth "15", kleshik_item_RespawnTime_Armor "25", kleshik_item_RespawnTime_MegaHealth "60", kleshik_item_RespawnTime_Powerup "60"
+		
+	FEATURE : Display Floating Keys Above Player
+		DESCRIPTION	: Given a player is in possession of either KEY1 or KEY2, the appropriate key model is rendered directly above them, scaled downward and alpha blended, attached by the DP attachment system.
+		CVAR		: kleshik_item_DisplayFloatingKeysAbovePlayer "1"
+		
+	FEATURE : Display Floating Weapon Above Player
+		DESCRIPTION	: If the player is not using the axe or shotgun, a scaled down, alpha blended model of their current weapon is attached above their head.
+		CVAR		: kleshik_item_DisplayFloatingWeaponAbovePlayer "1"
+		
+2.10	FEATURES - EXPLODING ITEM BOXES
+--------------------------------------
+	FEATURE : Exploding Item Box Percent Chance
+		DESCRIPTION	: Given the specified percentile occurs and the item is health, armor or a weapon, initially an explosive box is placed that must be destroyed to reveal the item.  Respawned items may also become an explosive item (specified in another CVar).  Disabled if 0.
+		CVAR		: kleshik_ExplodingItemBox_PercentChance "35"
+		
+	FEATURE : Exploding Item Box Damage
+		DESCRIPTION	: Determines both the damage and radius size of an exploding item box.
+		CVAR		: kleshik_ExplodingItemBox_Damage "90"
+		
+	FEATURE : Exploding Item Box Include Item Respawn
+		DESCRIPTION	: Specifies if respawned items have a chance to become an exploding item box.
+		CVAR		: kleshik_ExplodingItemBox_IncludeItemRespawns "0"
+		
+	FEATURE : Exploding Item Box In Deathmatch
+		DESCRIPTION	: Allows exploding item boxes to spawn in Deathmatch.
+		CVAR		: kleshik_ExplodingItemBox_InDeathmatch "0"
+		
+2.11	FEATURES - FLASH LIGHT
+--------------------------------------
+	FEATURE : Flash Light Toggle Impulse
+		DESCRIPTION	: Given a client uses the configured impulse, an EF_DIMLIGHT entity is created and traced from the client's view, providing the functionality of a flash light.  Disabled if impulse is 0.
+		CVAR		: kleshik_FlashLight_ToggleImpulse "51"
+		
+	FEATURE : Use Cubemap Light
+		DESCRIPTION	: If enabled, modifies the Flash Light to instead use a cubemap light filter, producing a much more realistic flash light effect, lighting up everything in its path.  This requires client-side data of the Kleshik Cubemaps PK3 file.
+		CVAR		: kleshik_FlashLight_UseCubemapLight "1"
+		NOTE		: This does not affect the blinding properties of the normal flash light (those calculations and relevant CVars are still performed).
+		
+	FEATURE : Flash Light Distance
+		DESCRIPTION	: Assigns the maximum distance of the flash light source entity.  This is updated when the flash light is activated for performance reasons.
+		CVAR		: kleshik_FlashLight_Distance "275"
+		
+	FEATURE : Flash Light Hostile Light
+		DESCRIPTION	: If enabled, the flash light is a hostile source of potential blinding, to both the owner and other players, as outlined in the CVars.  The offending light must be hitting the player for 0.7 continuous seconds for the hostility to occur.  Blinding results in a HUD Stinger utilizing the bubble sprite, heavily scaled to cover an entire player's view, regardless of their field of vision.
+		CVAR		: kleshik_FlashLight_HostileLight "1"
+		
+	FEATURE : Blind Self Distance
+		DESCRIPTION	: If greater than 0, when the source of your own flashlight is within the specified distance, you will be blinded.
+		CVAR		: kleshik_FlashLight_BlindSelfDistance "45"
+		
+	FEATURE : Blind Time
+		DESCRIPTION	: Specifies the amount of time that a player blinded by the flash light remainds blinded.
+		CVAR		: kleshik_FlashLight_BlindTime "2.0"
+		
+2.12	FEATURES - THROWABLE FLARES
+--------------------------------------
+	FEATURE : Throwable Flares Impulse
+		DESCRIPTION	: Given a client uses the configured impulse, a small flare is thrown at a fast speed that takes a few seconds before deploying into a light-providing entity.  Flare supply is unlimited, but flares have a lifetime and a refire time as well.  If a flare strikes a damageable entity at a decent speed, 5 damage will be caused.  Monsters will take notice of a flare radius and attack the player who threw it.  Disable if set to 0.
+		CVAR		: kleshik_ThrowableFlares_Impulse "52"
+		
+	FEATURE : Flare Life Time
+		DESCRIPTION	: Specifies the lifetime of a flare.  The flare will disappear when this time is reached.
+		CVAR		: kleshik_ThrowableFlares_FlareLifeTime "10"
+		
+	FEATURE : Flare Refire Time
+		DESCRIPTION	: Specifies the amount of time a player must wait before another flare can be thrown.
+		CVAR		: kleshik_ThrowableFlares_FlareRefireTime "5"
+
+2.13	FEATURES - WEAPONS
+--------------------------------------
+	FEATURE : Explosives Owner Velocity Ratio
+		DESCRIPTION	: Adds the specified ratio of the owner's velocity to grenades, rockets and any other spawned projectiles (aside from nails) when fired if enabled (ala Tribes).  The end result requires additional skill when aiming.  Disabled if 0.
+		CVAR		: kleshik_weapon_ExplosivesOwnerVelocityRatio "0.15"
+		
+	FEATURE : Disable AutoSwitch
+		DESCRIPTION	: If enabled, suppresses automatic switching of weapons due to new weapon acquisition or ammo pickup.
+		CVAR		: kleshik_weapon_DisableAutoSwitch "1"
+		
+	FEATURE : Respawn Using Last Equipped Weapon
+		DESCRIPTION	: When respawning, automatically switch to the last equipped weapon, or weapon at the time of your death, if you have it in your inventory.
+		CVAR		: kleshik_weapon_RespawnUsingLastEquippedWeapon "1"
+		
+	FEATURE : Detailed Nail Touch
+		DESCRIPTION	: Instead of making a small spark and disappearing, nails now gain a random angle and movement velocity, tinted with red if having struck a target, bouncing until being removed.
+		CVAR		: kleshik_weapon_DetailedNailTouch "1"
+		NOTE		: CVar takes effect on map change.
+		
+	FEATURE : Nails Inherit Grenade Model Flag in Water
+		DESCRIPTION	: If enabled, nails (or any projectiles created from launch_spike) will inherit the grenade model flag when in water or slime, producing tracer bubbles.
+		CVAR		: kleshik_weapon_NailsInheritGrenadeModelFlagInWater "1"
+		NOTE		: CVar takes effect on map change.
+		
+	FEATURE : Grenade Launcher - Grenades Bounce Off Owner
+		DESCRIPTION	: If enabled, a player's own grenade will no longer pass through them, instead bouncing off of them and inducing a small amount of punchangle.
+		CVAR		: kleshik_weapon_GrenadeLauncher_GrenadesBounceOffOwner "1"
+		
+	FEATURE : All Shotguns - Draw Tracer Fire
+		DESCRIPTION	: If enabled, te_particlerain is used to create very realistic tracer fire from shotguns.  This effect takes a considerable amount of bandwidth, so it should be disabled if lag is a large concern.
+		CVAR		: kleshik_weapon_AllShotguns_DrawTracerFire "1"
+		NOTE		: CVar takes effect on map change.
+		
+	FEATURE : All Shotguns - Per Bullet Damage
+		DESCRIPTION	: If enabled, instead of aggregating the damage of all shotgun bullets and performing one damage call afterwards, each individual bullet invokes a damage call.  This produces much more realistic blood, correct physics and prevents zombies from being gibbed with the buckshot.
+		CVAR		: kleshik_weapon_AllShotguns_PerBulletDamage "1"
+		NOTE		: CVar takes effect on map change.
+		
+	FEATURE : Grenade Launcher Fire / Grenade Bounce / Rocket Launcher Fire - Spark Feedback
+		DESCRIPTION	: te_spark calls are made during grenade launcher fire, grenade bounce and rocket launcher fire events.
+		CVAR		: N/A
+		
+	FEATURE : Additional Grenade Launcher Forward Velocity
+		DESCRIPTION	: To support a more capable usage, the grenade launcher now fires with forward velocity * 900 (instead of * 600).
+		CVAR		: N/A
+		
+	FEATURE : Shotgun Faster Attack
+		DESCRIPTION	: Increases the normal shotgun's usage by decreasing the attack time from 0.5 to 0.4 .
+		CVAR		: N/A
+		
+	FEATURE : Super Shotgun Fires More Bullets
+		DESCRIPTION	: Instead of 14, the super shotgun now fires 18 bullets, making it more attractive against monsters.
+		CVAR		: N/A
+		
+	FEATURE : Rocket Launcher - Eject Shells
+		DESCRIPTION	: Specifies if the Rocket Launcher should eject a small shell when fired.  Disable for bandwidth improvement.
+		CVAR		: kleshik_weapon_RocketLauncher_EjectShells "1"
+		
+	FEATURE : Proximity Gun - Allow AltFire Detonation
+		DESCRIPTION	: If enabled, pressing alt-fire (button3) whilst using the proximity gun allows all of your bombs to explode.
+		CVAR		: kleshik_weapon_ProximityGun_AllowAltFireDetonation "1"
+		NOTE		: CVar takes effect on map change.
+		
+	FEATURE : Proximity Gun - Max Bombs
+		DESCRIPTION	: Specifies the maximum number of bombs a player may fire using the Hipnotic Proximity Gun.  For an infinite amount, use 0.
+		CVAR		: kleshik_weapon_ProximityGun_MaxBombs "0"
+		NOTE		: CVar takes effect on map change.
+		
+	FEATURE : Proximity Gun - Bomb Lifetime
+		DESCRIPTION	: Specifies the lifetime of a proximity bomb before it blows up due to inactivity.  For an infinite lifetime, use 0.
+		CVAR		: kleshik_weapon_ProximityGun_BombLifetime "0"
+		NOTE		: CVar takes effect on map change.
+		
+	FEATURE : Proximity Gun - Trigger on Other Bombs
+		DESCRIPTION	: Specifies if proximity bombs should trigger (ie. explode) when other proximity bombs are near them.  If disabled, proximity bombs may be stacked in close proximity for a massive explosion.
+		CVAR		: kleshik_weapon_ProximityGun_TriggerOnOtherBombs "0"
+		NOTE		: CVar takes effect on map change.
+		
+	FEATURE : Faster Axe Attack
+		DESCRIPTION	: Increases the axe's usage by decreasing the attack time from 0.5 to 0.3, modifying animations accordingly as well.
+		CVAR		: N/A
+		
+	FEATURE : Stronger Axe Attack
+		DESCRIPTION	: Increases the damage done by the axe from 20 to 45.
+		CVAR		: N/A
+		
+	FEATURE : Thunderbolt Beam Discharges if in Water
+		DESCRIPTION	: Along with discharging if firing the Thunderbolt underwater, if the beam goes underwater in either water or slime (not lava or teleporters) the user also discharges.
+		CVAR		: kleshik_weapon_Thunderbolt_BeamDischarges "1"
+		
+2.14	FEATURES - MONSTERS
+--------------------------------------
+	FEATURE : Allow Damage Force
+		DESCRIPTION	: T_Damage calls apply momentum to MOVETYPE_STEP entities, such as monsters, allowing them to be pushed by damage.  This is above all an ESSENTIAL feature for the enjoyment of this modification, along with being the cornerstone reason for its production.
+		CVAR		: kleshik_monster_AllowDamageForce "1"
+		
+	FEATURE : Apply Additional Lift Velocity
+		DESCRIPTION	: Applies additional z-velocity to lift a monster allowing damage force, avoiding the issue of frictionless monsters.
+		CVAR		: kleshik_monster_ApplyAdditionalLiftVelocity "1"
+		
+	FEATURE :  Spawn Additional Monsters
+		DESCRIPTION	: Spawns the specified amount of additional monsters for each monster in the map, using the same monster class.  Applies additional random velocity for new positioning, and will not spawn additional monsters on monsters that have a "use" function, or an event that occurs when they are killed.
+		CVAR		: kleshik_monster_SpawnAdditionalMonsters "2"
+		
+	FEATURE : Water Volumes Damage
+		DESCRIPTION	: If enabled, monsters will take damage in slime or lava, just as the player does.  Useful when accompanied with Allow Damage Force.
+		CVAR		: kleshik_monster_WaterVolumesDamage "1"
+		
+	FEATURE : See Through Water
+		DESCRIPTION	: Allows monsters to see through water, given that with Darkplaces clients may utilize r_wateralpha to see through water themselves.
+		CVAR		: kleshik_monster_SeeThroughWater "1"
+		NOTE		: CVar takes effect on map change.
+		
+	FEATURE : Apply Random Monster Aesthetics
+		DESCRIPTION	: Assigns random colormods and alpha blends to various monsters (where it looks acceptable, such as Scrags, Zombies, Tarbabies).
+		CVAR		: kleshik_monster_ApplyRandomMonsterAesthetics "1"
+		
+			MONSTER							AESTHETIC
+			-------------------------------------------------------
+			Scrag							Random Colormod, Random Alpha Blend
+			Zombie							Random Alpha Blend
+			Tarbaby							Random Colormod, Random Alpha Blend
+			Fish							Random Colormod, Random Alpha Blend
+			Hipnotic - Spike Mine			Random Alpha Blend
+			Rogue - Phantom Sword			Random Colormod, Fullbright, Red Glow Trail
+			Rogue - Eel						Random Colormod, Random Alpha Blend
+			Rogue - Wrath					Random Alpha Blend
+			Rogue - Overlord				Random Alpha Blend
+		
+	FEATURE : Apply Random Monster Substitutions
+		DESCRIPTION	: Allows monsters to be substituted with stronger monsters (given a percentile condition).
+		CVAR		: kleshik_monster_ApplyRandomMonsterSubstitutions "1"
+
+			MONSTER							BOOST
+			-------------------------------------------------------
+			Soldier							25% Chance becomes Enforcer
+			Dog								5% Chance becomes Fiend
+			Ogre							5% Chance becomes Vore
+			Knight							10% Chance becomes Hell Knight
+			Zombie							10% Chance becomes Spawn
+			
+	FEATURE : Drop Additional Items
+		DESCRIPTION	: Drops various items (armor / powerups) at monster death, given a percent chance is met.
+		CVAR		: kleshik_monster_DropAdditionalItems "1"
+		
+			MONSTER							PERCENT CHANCE		ITEM
+			------------------------------------------------------------------------------
+			Enforcer						15%					Envirosuit (default time)
+			Knight							15%					Green Armor
+			Hell Knight						15%					Yellow Armor
+			Scrag							10%					Invisibility (default time)
+			Fiend							5%					Invulnerability (10 seconds)
+			Shambler						10%					Quad Damage (10 seconds)
+			Centroid (Hipnotic)				10%					Empathy Shields (default time)
+			
+	FEATURE : Skill Level for Leading Projectiles
+		DESCRIPTION	: Given the specified skill level or greater, monsters aim their projectiles based on target velocity.
+		CVAR		: kleshik_monster_SkillLevelForLeadingProjectiles "2"
+			
+	FEATURE : Movement Multiplier
+		DESCRIPTION	: Multiplies all monster movement speeds by the specified amount.  This essentially translates into faster monsters, with many of the melee-only monsters (knights) running faster than the player.
+		CVAR		: kleshik_monster_MovementMultiplier "1.68"
+		
+	FEATURE : Movement Maximum
+		DESCRIPTION	: Specifies a speed cap for monster movement.
+		CVAR		: kleshik_monster_MovementMaximum "80"
+		
+	FEATURE : Global Alpha Level
+		DESCRIPTION	: Assign specified alpha level to ALL monster, allowing them to be more invisible for a potentially greater challenge.
+		CVAR		: kleshik_monster_GlobalAlphaLevel "1.0"
+		
+	FEATURE : Death EarthQuake Level
+		DESCRIPTION	: During the death of specific monsters, an earthquake is simulated, causing punchangle to players if the level is 1 or more, and vertical lift to monsters / players if the level is 2 or more.
+		CVAR		: kleshik_monster_DeathEarthQuakeLevel "2"
+		
+	FEATURE : Shalrath(Vore) - Missile Explode Time
+		DESCRIPTION	: Specifies the amount of time before a Shalrath / Vore missile will explode, despite never touching a target.
+		CVAR		: kleshik_monster_Shalrath_MissileExplodeTime "7"
+		
+	FEATURE : Wrath - Missile Explode Time
+		DESCRIPTION	: Specifies the amount of time before a Wrath missile will explode, despite never touching a target.
+		CVAR		: kleshik_monster_Wrath_MissileExplodeTime "7"
+		
+	FEATURE : Zombie - Allow Damage To Crucified
+		DESCRIPTION	: Crucified Zombies may now be damaged to your heart's content, and gibbed appropriately.  Additionally, the zombies will spawn in deathmatch if this is enabled.
+		CVAR		: kleshik_monster_Zombie_AllowDamageToCrucified "1"
+		
+	FEATURE : Custom Modification Monster Replacements
+		DESCRIPTION	: Custom modification monsters are either replaced to use standard Quake creatures or re-implemented, allowing the best possible experience for utilizing the Kleshik modification with custom maps that include progs.dat .
+		
+		MONSTER							REPLACEMENT / IMPLEMENTED		ORIGINAL MODIFICATION
+		---------------------------------------------------------------------------------------------
+		monster_imp						monster_wizard					Marcher Fortress
+		monster_ogre_spikeshooter		monster_ogre					Marcher Fortress
+		monster_stego					monster_dog						Abandon
+		monster_orb						monster_enforcer				Abandon
+		
+2.15	FEATURES - ELITE MONSTERS
+--------------------------------------
+
+	FEATURE :  Elite Monster - Base Percent Chance
+		DESCRIPTION	: Given the percent chance specified is met, a monster is an elite monster immediately from spawn.  The monster will not visibly appear to be an elite monster, until first contact (through sight or damage) with a player.
+		CVAR		: kleshik_EliteMonster_BasePercentChance "10"
+		
+	FEATURE : Elite Monster - Death Light Pulsation
+		DESCRIPTION	: If enabled, when an elite monster is killed the standard lights of the level will pulsate.
+		CVAR		: kleshik_EliteMonster_DeathLightPulsation "1"
+		
+	FEATURE : Elite Monster - Initial Contact HUD Stinger
+		DESCRIPTION	: If enabled, when an elite monster is first contacted, either through sight or damage, a HUD stinger will be presented to all players.
+		CVAR		: kleshik_EliteMonster_InitialContactHUDStinger "1"
+		
+2.16	FEATURES - AMMO
+--------------------------------------
+	FEATURE : Custom Max Ammo
+		DESCRIPTION	: Specifies custom amounts for maximum ammo capacity.  Cheats, pickups and all other systems have been modified to support the altered capacities.
+		CVAR		: kleshik_ammo_MaxShells "350", kleshik_ammo_MaxNails "700", kleshik_ammo_MaxRockets "150", kleshik_ammo_MaxCells "450"
+		
+	FEATURE : Infinite Ammo
+		DESCRIPTION	: If enabled, no ammo is reduced when firing weapons.  Useful for cooperative sessions where pure chaos is desired.
+		CVAR		: kleshik_ammo_Infinite "0"
+		NOTE		: CVar takes effect on map change.
+		
+3.0		QUAKE BUG / GAMEPLAY FIXES
+--------------------------------------
+	BUG			: Player Kill Messages Represent Current Weapon
+				Damage Types are now implemented, allowing for dynamic resistances and other bells and whistles (see Explosions Always Gib).  This also allows for kill messages to be displayed properly, based on the weapon used for the kill, not the weapon currently being used by the killer.
+				
+	BUG			: hurt_triggers with negative damage (meant to heal) cause pain sounds and effects
+				Map authors that used hurt_triggers to heal the player by using negative damage forced players to experience the effects of regular damage.  This has been modified to instead provide a heal sound and no damage effects.
+				
+	BUG			: Ammunition Pickups are item_weapon entities
+				Although only a few ammunition pickps are affected (namely on DM5, DM6), some maps contain ammunition that is the item_weapon entity class.  This is a legacy class and should no longer be used.  The items are translated to the standard ammunition pickups.
+				
+	BUG			: Armortype Precision Loss in Spawn Parameters
+				Quake normally unnecessarily stores a client's armortype in the spawn parameters as its value * 100.  This induces a loss of precision when the armortype is derived in the Decode procedure, as the armor is divide by 0.01 .  The armor is now stored as-is.
+		
+	BUG			: Player Immediately Attacking on Respawn (if attack used to respawn)
+				Normally, when respawning with the attack button, a player would immediately fire their weapon.  This has been fixed using a "hack" to prevent an attack for 0.2 seconds after respawn.
+				
+	BUG			: Blood Spewing from Damageable Brushes
+				Bullets and the axe were able to spew blood from damageable brushes, such as secret doors.  This has been fixed so that they spawn sparks instead.
+				
+	BUG			: Chthon (monster_boss) Stops Firing Missiles if all players are dead
+				Chthon has flawed logic that seeks for a new target once his current one is dead.  If no new targets can be found immediately, Chthon goes into his idle stage wherein he will never choose a new target.  This idle stage is now appropriately flagged and will choose a new target as soon as possible.
+				
+	GAMEPLAY	: Player Suicide Utilizes Fake Death
+				When a player enters kill in the console, Quake by default uses a pseudo-death system which simply respawns the player elsewhere and creates a corpse where they were.  This system did NOT invoke standard death routines.  This has been changed to simply cause T_Damage to the client, invoking standard death routines.
+				
+	GAMEPLAY	: Armor Reduced Drowning / Falling Damage
+				All damagetypes in Quake were affected by the player's armor.  With Kleshik's implementation of damagetypes, drowning and falling damage now ignore armor.
+		
+	GAMEPLAY	: Monsters Telefrag other Monsters
+				Given a monster teleports in at another monster's location, the monster is telefragged.  This is now suppressed unless the game is currently in an intermission, wherein it is still allowed.
+		
+	BUG			: Swimming Monster Total Count + 2
+				Given a monster that swims (ie. only fish) the total monster counter was incremented by 2.  This has been modified to increment only by 1.
+		
+	BUG			: Player Pain Function Nightmare Issue
+				The T_Damage function checked for the skill level, and if on 3 (Nightmare), the targets pain_finished time would increment by 5 seconds.  This was applied to players as well; the FL_MONSTER flag is now checked before applying the time.
+		
+	BUG			: Weapon Attack Finish Time Defers Non-Weapon Impulses
+				Normally when a player attacks the attack finish time is assigned, and until that is reached no impulses are accepted, including non-weapon impulses.  Now impulses are allowed if they do not pertain to a weapon.
+		
+	BUG			: Axe / Mjolnir (Hipnotic) Wakes Up Monsters
+				The W_Attack function normally induces a monster wake up based on any weapon.  This has been modified to exclude the axe, as it should not exactly be heard by monsters.
+				
+	BUG			: Hipnotic - Rubble Causes Damage when Still
+				Normally the rubble debris in the Hipnotic mission pack will damage a player, even if the rubble is not moving.  This is retarded.  Rubble must now have some velocity if they are to cause damage.
+				
+	BUG			: Hipnotic - func_spawn Entities Spawn "Dummy" Monsters when using Random Spawn
+				If a Hipnotic func_spawn entity is not given a spawnfunction and classname (ie. it should spawn a random monster), the entity would end up spawning five monsters and only utilizing one of them.  This was wasteful behavior, and has been modified to only spawn the entity needed.
+		
+4.0		APPENDIX
+--------------------------------------
+
+4.1		MOD-DEFAULT IMPULSES
+--------------------------------------
+	Impulse 50		- Personal Teleporter
+	Impulse 51		- Toggle FlashLight
+	Impulse 52		- Throw Flare
+	Impulse 100		- Advanced Statistics Menu
+	Impulse 101		- Impulse Listing Menu
+	
